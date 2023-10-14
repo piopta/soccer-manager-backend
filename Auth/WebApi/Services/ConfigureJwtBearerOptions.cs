@@ -37,8 +37,11 @@ namespace WebApi.Services
                 ValidateLifetime = true,
                 ValidAudience = _jwtOptions.Audience,
                 ValidIssuer = _jwtOptions.Issuer,
+                ValidAlgorithms = new List<string>() { SecurityAlgorithms.HmacSha512 },
                 ClockSkew = TimeSpan.FromSeconds(_jwtOptions.ClockSkew ?? 30),
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtOptions.Key))
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtOptions.Key)),
+                NameClaimType = ApplicationConstants.UserNameClaimName,
+                RoleClaimType = ApplicationConstants.RoleClaimName
             };
 
             opts.Events = new()
@@ -47,11 +50,26 @@ namespace WebApi.Services
                 {
                     ApplicationDbContext appCtx = ctx.HttpContext.RequestServices.GetRequiredService<ApplicationDbContext>();
 
-                    string token = ctx.Request.Headers.Authorization.FirstOrDefault(f => f.StartsWith("Bearer"));
+                    try
+                    {
+                        string? token = ctx.Request.Headers?.Authorization.FirstOrDefault(f => f.StartsWith("Bearer"));
 
-                    string hash = token.CreateMD5Hash();
+                        if (token is not null)
+                        {
+                            string authToken = token.Split(" ")[1];
+                            string hash = authToken.CreateMD5Hash();
 
-                    if (appCtx.InvalidTokens.Any(t => string.Equals(t.TokenHash, hash, StringComparison.OrdinalIgnoreCase)))
+                            if (appCtx.InvalidTokens.Any(t => t.TokenHash == hash))
+                            {
+                                ctx.Fail(new SecurityTokenValidationException());
+                            }
+                        }
+                        else
+                        {
+                            ctx.Fail(new SecurityTokenValidationException());
+                        }
+                    }
+                    catch (Exception)
                     {
                         ctx.Fail(new SecurityTokenValidationException());
                     }

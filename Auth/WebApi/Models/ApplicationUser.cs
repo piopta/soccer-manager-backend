@@ -2,6 +2,6 @@
 {
     public class ApplicationUser : IdentityUser
     {
-
+        public IList<InvalidToken> InvalidTokens { get; set; } = default!;
     }
 }
