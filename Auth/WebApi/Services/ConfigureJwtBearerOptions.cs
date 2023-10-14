@@ -2,84 +2,81 @@
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using WebApi.Data;
-using WebApi.Extensions;
 
-namespace WebApi.Services
+namespace WebApi.Services;
+
+//https://stackoverflow.com/questions/61186836/jwt-bearer-and-dependency-injection
+public class ConfigureJwtBearerOptions : IConfigureNamedOptions<JwtBearerOptions>
 {
-    //https://stackoverflow.com/questions/61186836/jwt-bearer-and-dependency-injection
-    public class ConfigureJwtBearerOptions : IConfigureNamedOptions<JwtBearerOptions>
+    private readonly JwtOptions _jwtOptions;
+
+    public ConfigureJwtBearerOptions(IOptions<JwtOptions> jwtOptions)
     {
-        private readonly JwtOptions _jwtOptions;
+        _jwtOptions = jwtOptions.Value;
+    }
 
-        public ConfigureJwtBearerOptions(IOptions<JwtOptions> jwtOptions)
-        {
-            _jwtOptions = jwtOptions.Value;
-        }
+    public void Configure(string name, JwtBearerOptions options)
+    {
+        Configure(options);
+    }
 
-        public void Configure(string name, JwtBearerOptions options)
-        {
-            Configure(options);
-        }
+    public void Configure(JwtBearerOptions options)
+    {
+        SetJwtBearerOptions(options);
+    }
 
-        public void Configure(JwtBearerOptions options)
+    private void SetJwtBearerOptions(JwtBearerOptions opts)
+    {
+        opts.TokenValidationParameters = new()
         {
-            SetJwtBearerOptions(options);
-        }
+            ValidateAudience = true,
+            ValidateIssuer = true,
+            ValidateIssuerSigningKey = true,
+            ValidateLifetime = true,
+            ValidAudience = _jwtOptions.Audience,
+            ValidIssuer = _jwtOptions.Issuer,
+            ValidAlgorithms = new List<string>() { SecurityAlgorithms.HmacSha512 },
+            ClockSkew = TimeSpan.FromSeconds(_jwtOptions.ClockSkew ?? 30),
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtOptions.Key)),
+            NameClaimType = ApplicationConstants.UserNameClaimName,
+            RoleClaimType = ApplicationConstants.RoleClaimName
+        };
 
-        private void SetJwtBearerOptions(JwtBearerOptions opts)
+        opts.Events = new()
         {
-            opts.TokenValidationParameters = new()
+            OnMessageReceived = (MessageReceivedContext ctx) =>
             {
-                ValidateAudience = true,
-                ValidateIssuer = true,
-                ValidateIssuerSigningKey = true,
-                ValidateLifetime = true,
-                ValidAudience = _jwtOptions.Audience,
-                ValidIssuer = _jwtOptions.Issuer,
-                ValidAlgorithms = new List<string>() { SecurityAlgorithms.HmacSha512 },
-                ClockSkew = TimeSpan.FromSeconds(_jwtOptions.ClockSkew ?? 30),
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtOptions.Key)),
-                NameClaimType = ApplicationConstants.UserNameClaimName,
-                RoleClaimType = ApplicationConstants.RoleClaimName
-            };
+                ApplicationDbContext appCtx = ctx.HttpContext.RequestServices.GetRequiredService<ApplicationDbContext>();
 
-            opts.Events = new()
-            {
-                OnMessageReceived = (MessageReceivedContext ctx) =>
+                try
                 {
-                    ApplicationDbContext appCtx = ctx.HttpContext.RequestServices.GetRequiredService<ApplicationDbContext>();
+                    string? token = ctx.Request.Headers?.Authorization.FirstOrDefault(f => f.StartsWith("Bearer"));
 
-                    try
+                    if (token is not null)
                     {
-                        string? token = ctx.Request.Headers?.Authorization.FirstOrDefault(f => f.StartsWith("Bearer"));
+                        string authToken = token.Split(" ")[1];
+                        string hash = authToken.CreateMD5Hash();
 
-                        if (token is not null)
-                        {
-                            string authToken = token.Split(" ")[1];
-                            string hash = authToken.CreateMD5Hash();
-
-                            if (appCtx.InvalidTokens.Any(t => t.TokenHash == hash))
-                            {
-                                ctx.Fail(new SecurityTokenValidationException());
-                            }
-                        }
-                        else
+                        if (appCtx.InvalidTokens.Any(t => t.TokenHash == hash))
                         {
                             ctx.Fail(new SecurityTokenValidationException());
                         }
                     }
-                    catch (Exception)
+                    else
                     {
                         ctx.Fail(new SecurityTokenValidationException());
                     }
-
-                    return Task.CompletedTask;
                 }
-            };
+                catch (Exception)
+                {
+                    ctx.Fail(new SecurityTokenValidationException());
+                }
 
-            opts.MapInboundClaims = false;
-        }
+                return Task.CompletedTask;
+            }
+        };
 
+        opts.MapInboundClaims = false;
     }
+
 }

@@ -1,6 +1,5 @@
-﻿namespace WebApi
+﻿namespace WebApi;
+
+public class AssemblyMarker
 {
-    public class AssemblyMarker
-    {
-    }
 }

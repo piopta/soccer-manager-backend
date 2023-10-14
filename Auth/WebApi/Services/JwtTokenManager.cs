@@ -1,61 +1,58 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using OneOf.Types;
-using WebApi.Data;
-using WebApi.Extensions;
 
-namespace WebApi.Services
+namespace WebApi.Services;
+
+public class JwtTokenManager : IJwtTokenManager
 {
-    public class JwtTokenManager : IJwtTokenManager
+    private readonly ApplicationDbContext _ctx;
+    private readonly ILogger<JwtTokenManager> _logger;
+
+    public JwtTokenManager(ApplicationDbContext ctx, ILogger<JwtTokenManager> logger)
     {
-        private readonly ApplicationDbContext _ctx;
-        private readonly ILogger<JwtTokenManager> _logger;
+        _ctx = ctx;
+        _logger = logger;
+    }
 
-        public JwtTokenManager(ApplicationDbContext ctx, ILogger<JwtTokenManager> logger)
-        {
-            _ctx = ctx;
-            _logger = logger;
-        }
+    public async Task InvalidateTokenForUser(string userName, string token)
+    {
+        var user = await GetUserAsync(userName);
 
-        public async Task InvalidateTokenForUser(string userName, string token)
-        {
-            var user = await GetUserAsync(userName);
+        await user.Match(
+           async (u) =>
+           {
+               string tokenHash = token.CreateMD5Hash();
 
-            await user.Match(
-               async (u) =>
+               InvalidToken invalidToken = new()
                {
-                   string tokenHash = token.CreateMD5Hash();
+                   TokenHash = tokenHash,
+                   User = u,
+                   UserId = u.Id
+               };
 
-                   InvalidToken invalidToken = new()
-                   {
-                       TokenHash = tokenHash,
-                       User = u,
-                       UserId = u.Id
-                   };
+               u.InvalidTokens.Add(invalidToken);
 
-                   u.InvalidTokens.Add(invalidToken);
+               await _ctx.SaveChangesAsync();
 
-                   await _ctx.SaveChangesAsync();
+               return;
+           },
+           (f) =>
+           {
+               _logger.LogInformation("User with {userName} not found", userName);
+               return Task.CompletedTask;
+           }
+        );
+    }
 
-                   return;
-               },
-               (f) =>
-               {
-                   _logger.LogInformation("User with {userName} not found", userName);
-                   return Task.CompletedTask;
-               }
-            );
-        }
+    private async Task<OneOf<ApplicationUser, False>> GetUserAsync(string userName)
+    {
+        ApplicationUser? user = await _ctx.Users.FirstOrDefaultAsync(u => u.UserName == userName);
 
-        private async Task<OneOf<ApplicationUser, False>> GetUserAsync(string userName)
+        if (user is null)
         {
-            ApplicationUser? user = await _ctx.Users.FirstOrDefaultAsync(u => u.UserName == userName);
-
-            if (user is null)
-            {
-                return new False();
-            }
-
-            return user;
+            return new False();
         }
+
+        return user;
     }
 }

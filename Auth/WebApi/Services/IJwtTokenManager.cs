@@ -1,7 +1,6 @@
-﻿namespace WebApi.Services
+﻿namespace WebApi.Services;
+
+public interface IJwtTokenManager
 {
-    public interface IJwtTokenManager
-    {
-        Task InvalidateTokenForUser(string userName, string token);
-    }
+    Task InvalidateTokenForUser(string userName, string token);
 }

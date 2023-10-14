@@ -1,13 +1,11 @@
 ﻿using AutoMapper;
-using WebApi.Models.DTOs;
 
-namespace WebApi.Profiles
+namespace WebApi.Profiles;
+
+public class MainProfile : Profile
 {
-    public class MainProfile : Profile
+    public MainProfile()
     {
-        public MainProfile()
-        {
-            CreateMap<ApplicationUser, ApplicationUserDTO>();
-        }
+        CreateMap<ApplicationUser, ApplicationUserDTO>();
     }
 }

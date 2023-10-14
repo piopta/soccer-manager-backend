@@ -1,4 +1,4 @@
-﻿namespace WebApi.Models
+﻿namespace WebApi.Models.Results
 {
     public class RegisterUserResult
     {

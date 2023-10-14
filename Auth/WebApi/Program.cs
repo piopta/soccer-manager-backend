@@ -5,6 +5,7 @@ using MailKit.Net.Smtp;
 using WebApi;
 using WebApi.Data;
 using WebApi.Jobs;
+using WebApi.Models.Options;
 using WebApi.Services;
 using WebApi.ServicesRegistration;
 

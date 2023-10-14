@@ -1,4 +1,4 @@
-﻿namespace WebApi.Models
+﻿namespace WebApi.Models.Options
 {
     public class FrontendOptions
     {

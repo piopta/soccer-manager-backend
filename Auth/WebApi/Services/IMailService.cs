@@ -1,7 +1,6 @@
-﻿namespace WebApi.Services
+﻿namespace WebApi.Services;
+
+public interface IMailService
 {
-    public interface IMailService
-    {
-        OneOf<bool, ErrorResultGeneral> SendMail(MailInfo mail);
-    }
+    OneOf<bool, ErrorResultGeneral> SendMail(MailInfo mail);
 }

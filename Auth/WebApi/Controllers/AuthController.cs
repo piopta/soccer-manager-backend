@@ -10,6 +10,8 @@ using System.Text;
 using WebApi.Data;
 using WebApi.Filters;
 using WebApi.Models.DTOs;
+using WebApi.Models.Options;
+using WebApi.Models.Results;
 using WebApi.Services;
 
 namespace WebApi.Controllers

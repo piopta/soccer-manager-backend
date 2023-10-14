@@ -1,3 +1,9 @@
 ﻿global using Microsoft.AspNetCore.Identity;
 global using OneOf;
+global using WebApi.Data;
+global using WebApi.Extensions;
 global using WebApi.Models;
+global using WebApi.Models.DTOs;
+global using WebApi.Models.Options;
+global using WebApi.Models.Results;
+global using WebApi.Services;

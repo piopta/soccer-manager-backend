@@ -1,12 +1,11 @@
 ﻿using FluentValidation;
 
-namespace WebApi.Validation
+namespace WebApi.Validation;
+
+public class ValidateTokenValidator : AbstractValidator<ValidateToken>
 {
-    public class ValidateTokenValidator : AbstractValidator<ValidateToken>
+    public ValidateTokenValidator()
     {
-        public ValidateTokenValidator()
-        {
-            RuleFor(v => v.Token).NotNull();
-        }
+        RuleFor(v => v.Token).NotNull();
     }
 }

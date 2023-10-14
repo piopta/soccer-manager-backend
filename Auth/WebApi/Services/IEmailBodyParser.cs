@@ -1,7 +1,6 @@
-﻿namespace WebApi.Services
+﻿namespace WebApi.Services;
+
+public interface IEmailBodyParser
 {
-    public interface IEmailBodyParser
-    {
-        string ReadEmailBody(MailInfo mailInfo);
-    }
+    string ReadEmailBody(MailInfo mailInfo);
 }

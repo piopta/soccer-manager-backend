@@ -30,4 +30,12 @@
     </None>
   </ItemGroup>
 
+  <ItemGroup>
+    <EditorConfigFiles Remove="C:\Users\piter\Desktop\Projekt inżynierski\Backend\Auth\WebApi\.editorconfig" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="C:\Users\piter\Desktop\Projekt inżynierski\Backend\Auth\WebApi\.editorconfig" />
+  </ItemGroup>
+
 </Project>
