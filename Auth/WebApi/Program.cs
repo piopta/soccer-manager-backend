@@ -3,10 +3,7 @@ using FluentValidation;
 using HtmlAgilityPack;
 using MailKit.Net.Smtp;
 using WebApi;
-using WebApi.Data;
 using WebApi.Jobs;
-using WebApi.Models.Options;
-using WebApi.Services;
 using WebApi.ServicesRegistration;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -32,6 +29,15 @@ builder.Services.AddScoped<IMailService, MailService>();
 builder.Services.AddScheduler();
 builder.Services.AddControllers();
 
+builder.Services.AddCors(opts =>
+{
+    opts.AddDefaultPolicy(policyBuilder =>
+    {
+        policyBuilder.WithOrigins(builder.Configuration["FrontendOptions:AppUrl"])
+                     .AllowAnyHeader().AllowAnyMethod();
+    });
+});
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -49,6 +55,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseCors();
 app.UseHttpsRedirection();
 
 app.UseAuthentication();
