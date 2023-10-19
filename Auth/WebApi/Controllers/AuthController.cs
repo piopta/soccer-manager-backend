@@ -7,12 +7,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using WebApi.Data;
 using WebApi.Filters;
-using WebApi.Models.DTOs;
-using WebApi.Models.Options;
-using WebApi.Models.Results;
-using WebApi.Services;
 
 namespace WebApi.Controllers
 {
@@ -85,7 +80,7 @@ namespace WebApi.Controllers
 
             bool res = await _userManager.CheckPasswordAsync(appUser, user.Password);
 
-            if (!res)
+            if (!res || !appUser.EmailConfirmed)
             {
                 return BadRequest();
             }
@@ -191,7 +186,31 @@ namespace WebApi.Controllers
             return NoContent();
         }
 
-        //TODO: move to separate controller - AdminAuth
+        [HttpGet("logout")]
+        [Authorize]
+        public async Task<IActionResult> Logout([FromQuery] string token)
+        {
+            //here user is surely logged in - Authorize filter guarantees that
+            ClaimsIdentity identity = HttpContext.User.Identities.FirstOrDefault()!;
+            string userName = identity.Name!;
+
+            ApplicationUser appUser = await _userManager.FindByNameAsync(userName);
+
+            string hash = token.CreateMD5Hash();
+
+            InvalidToken invalidToken = new()
+            {
+                TokenHash = hash,
+                User = appUser,
+                UserId = appUser.Id
+            };
+
+            await _ctx.InvalidTokens.AddAsync(invalidToken);
+
+            await _ctx.SaveChangesAsync();
+            return Ok();
+        }
+
         [HttpGet("lockUser")]
         [Authorize(Policy = ApplicationConstants.AdminAuthorizationPolicy)]
         public async Task<IActionResult> LockUser([FromQuery] string userEmail)
@@ -203,7 +222,7 @@ namespace WebApi.Controllers
                 return BadRequest();
             }
 
-            await _userManager.SetLockoutEnabledAsync(appUser, true);
+            await _userManager.SetLockoutEndDateAsync(appUser, new DateTimeOffset().AddDays(7));
 
             return NoContent();
         }
@@ -219,7 +238,7 @@ namespace WebApi.Controllers
                 return BadRequest();
             }
 
-            await _userManager.SetLockoutEnabledAsync(appUser, false);
+            await _userManager.SetLockoutEndDateAsync(appUser, null);
 
             return NoContent();
         }
@@ -237,6 +256,16 @@ namespace WebApi.Controllers
         [HttpPost("validateToken")]
         public IActionResult ValidateToken([FromBody] ValidateToken validateToken)
         {
+            string tokenHash = validateToken.Token.CreateMD5Hash();
+
+            if (_ctx.InvalidTokens.Any(t => t.TokenHash == tokenHash))
+            {
+                return Unauthorized(new ValidateTokenResult()
+                {
+                    State = ValidateTokenState.INVALID
+                });
+            }
+
             TokenValidationResult validationRes = new JsonWebTokenHandler().ValidateToken(validateToken.Token, new()
             {
                 ValidateAudience = true,

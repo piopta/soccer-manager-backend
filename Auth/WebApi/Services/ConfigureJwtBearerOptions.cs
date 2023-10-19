@@ -56,7 +56,7 @@ public class ConfigureJwtBearerOptions : IConfigureNamedOptions<JwtBearerOptions
                     {
                         string authToken = token.Split(" ")[1];
                         string hash = authToken.CreateMD5Hash();
-
+                        var tks = appCtx.InvalidTokens.ToList();
                         if (appCtx.InvalidTokens.Any(t => t.TokenHash == hash))
                         {
                             ctx.Fail(new SecurityTokenValidationException());
