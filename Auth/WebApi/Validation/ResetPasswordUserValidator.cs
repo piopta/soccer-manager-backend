@@ -8,7 +8,7 @@ public class ResetPasswordUserValidator : AbstractValidator<ResetPasswordUser>
     {
         RuleFor(r => r.Email).EmailAddress().NotNull();
         RuleFor(r => r.Password).MinimumLength(ApplicationConstants.Validation.MinimumPasswordLength).NotNull();
-        RuleFor(r => r.ConfirmPassword).Equal(r => r.Password);
+        RuleFor(r => r.ConfirmedPassword).Equal(r => r.Password);
         RuleFor(r => r.Token).NotNull();
     }
 }

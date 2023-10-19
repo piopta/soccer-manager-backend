@@ -119,7 +119,7 @@ namespace WebApi.Controllers
             ApplicationUser appUser = await _userManager.FindByEmailAsync(user.Email);
 
             string token = await _userManager.GeneratePasswordResetTokenAsync(appUser);
-            string link = $"{_frontendOptions.AppUrl}resetPassword?token={token}&email={appUser.Email}";
+            string link = $"{_frontendOptions.AppUrl}/resetPassword?token={token}&email={appUser.Email}";
 
             MailInfo mail = new()
             {
