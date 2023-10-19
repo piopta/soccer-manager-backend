@@ -5,6 +5,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
+using System.Net;
 using System.Security.Claims;
 using System.Text;
 using WebApi.Filters;
@@ -51,13 +52,15 @@ namespace WebApi.Controllers
 
             await _userManager.AddToRoleAsync(appUser, ApplicationConstants.Roles.User);
 
-            string token = await _userManager.GenerateEmailConfirmationTokenAsync(appUser);
+            string token = WebUtility.UrlEncode(await _userManager.GenerateEmailConfirmationTokenAsync(appUser));
+
+            string link = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}/api/Auth/confirmEmail?token={token}&email={appUser.Email}";
 
             MailInfo mail = new()
             {
                 Parameters = new()
                 {
-                    {"@@token@@", token }
+                    {"@@link@@", link}
                 },
                 Subject = "[Soccer manager] - please verify your email address",
                 TemplatePath = "EmailTemplates/email_confirmation.html",
@@ -251,6 +254,21 @@ namespace WebApi.Controllers
             List<ApplicationUserDTO> res = _mapper.Map<List<ApplicationUserDTO>>(users);
 
             return Ok(res);
+        }
+
+        [HttpGet("confirmEmail")]
+        public async Task<IActionResult> ConfirmEmail([FromQuery] string email, [FromQuery] string token)
+        {
+            ApplicationUser appUser = await _userManager.FindByEmailAsync(email);
+
+            IdentityResult res = await _userManager.ConfirmEmailAsync(appUser, token);
+
+            if (!res.Succeeded)
+            {
+                return BadRequest();
+            }
+
+            return Redirect($"{_frontendOptions.AppUrl}/login");
         }
 
         [HttpPost("validateToken")]

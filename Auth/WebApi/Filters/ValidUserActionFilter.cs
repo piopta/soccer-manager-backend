@@ -27,7 +27,7 @@ namespace WebApi.Filters
 
             string? deletedUserName = context.ActionArguments.FirstOrDefault(a => a.Key == "userEmail").Value as string;
 
-            ApplicationUser? user = await _userManager.FindByNameAsync(userName);
+            ApplicationUser? user = await _userManager.FindByEmailAsync(userName);
 
             if (user is null)
             {
