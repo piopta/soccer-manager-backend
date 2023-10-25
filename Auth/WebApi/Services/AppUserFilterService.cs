@@ -22,10 +22,10 @@ public class AppUserFilterService : IAppUserFilterService
         }
 
         //temporary commented
-        //if (appUser.LockoutEnabled || !appUser.EmailConfirmed)
-        //{
-        //    return new BadRequestObjectResult("User account is locked or doesn't exist.");
-        //}
+        if (!appUser.EmailConfirmed)
+        {
+            return new BadRequestObjectResult("User account is locked or doesn't exist.");
+        }
 
         return new True();
     }

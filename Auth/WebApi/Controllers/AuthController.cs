@@ -37,6 +37,11 @@ namespace WebApi.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterUser user)
         {
+            if (!string.Equals(user.Password, user.ConfirmPassword))
+            {
+                return BadRequest();
+            }
+
             ApplicationUser appUser = new()
             {
                 UserName = user.Email,
