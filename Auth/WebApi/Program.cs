@@ -2,6 +2,7 @@ using Coravel;
 using FluentValidation;
 using HtmlAgilityPack;
 using MailKit.Net.Smtp;
+using Microsoft.EntityFrameworkCore;
 using WebApi;
 using WebApi.Jobs;
 using WebApi.ServicesRegistration;
@@ -14,7 +15,10 @@ builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection(Applicat
 builder.Services.Configure<MailOptions>(builder.Configuration.GetSection(ApplicationConstants.MailOptionsSectionName));
 
 builder.Services.AddValidatorsFromAssemblyContaining<AssemblyMarker>();
-builder.Services.AddDbContext<ApplicationDbContext>();
+builder.Services.AddDbContext<ApplicationDbContext>(opts =>
+{
+    opts.UseNpgsql(builder.Configuration.GetConnectionString(ApplicationConstants.DbConnectionStringName));
+});
 
 builder.Services.AddAuthServices();
 

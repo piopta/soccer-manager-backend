@@ -37,6 +37,11 @@ namespace WebApi.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterUser user)
         {
+            if (!string.Equals(user.Password, user.ConfirmPassword))
+            {
+                return BadRequest();
+            }
+
             ApplicationUser appUser = new()
             {
                 UserName = user.Email,
@@ -83,7 +88,7 @@ namespace WebApi.Controllers
 
             bool res = await _userManager.CheckPasswordAsync(appUser, user.Password);
 
-            if (!res || !appUser.EmailConfirmed)
+            if (!res)
             {
                 return BadRequest();
             }
@@ -160,6 +165,11 @@ namespace WebApi.Controllers
         [ServiceFilter(typeof(UserStateValidFilter<ChangePasswordUser>))]
         public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordUser user)
         {
+            if (user.NewPassword != user.ConfirmedNewPassword)
+            {
+                return BadRequest();
+            }
+
             ApplicationUser appUser = await _userManager.FindByEmailAsync(user.Email);
 
             IdentityResult res = await _userManager.ChangePasswordAsync(appUser, user.OldPassword, user.NewPassword);

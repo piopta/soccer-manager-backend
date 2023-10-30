@@ -14,12 +14,5 @@ namespace WebApi.Data
         }
 
         public DbSet<InvalidToken> InvalidTokens { get; set; } = default!;
-
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            base.OnConfiguring(optionsBuilder);
-
-            optionsBuilder.UseNpgsql(_configuration.GetConnectionString(ApplicationConstants.DbConnectionStringName));
-        }
     }
 }
