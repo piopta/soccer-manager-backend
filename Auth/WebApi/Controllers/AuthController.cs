@@ -39,7 +39,7 @@ namespace WebApi.Controllers
         {
             if (!string.Equals(user.Password, user.ConfirmPassword))
             {
-                return BadRequest();
+                return BadRequest("Password values must match");
             }
 
             ApplicationUser appUser = new()
@@ -52,7 +52,7 @@ namespace WebApi.Controllers
 
             if (!creationRes.Succeeded)
             {
-                return BadRequest(creationRes.Errors);
+                return BadRequest(string.Join(",", creationRes.Errors));
             }
 
             await _userManager.AddToRoleAsync(appUser, ApplicationConstants.Roles.User);
@@ -90,7 +90,7 @@ namespace WebApi.Controllers
 
             if (!res)
             {
-                return BadRequest();
+                return BadRequest("User doesn't exist or password doesn't match");
             }
 
             JwtSecurityTokenHandler handler = new();
@@ -117,7 +117,10 @@ namespace WebApi.Controllers
 
             string token = handler.WriteToken(securityToken);
 
-            return Ok(token);
+            return Ok(new LoginUserResult()
+            {
+                Token = token
+            });
         }
 
         [HttpPost("forgotPassword")]
@@ -155,7 +158,7 @@ namespace WebApi.Controllers
 
             if (!res.Succeeded)
             {
-                return BadRequest(res.Errors);
+                return BadRequest(string.Join(",", res.Errors));
             }
 
             return Ok(new ResponseResultGeneral("Password successfully changed"));
@@ -167,7 +170,7 @@ namespace WebApi.Controllers
         {
             if (user.NewPassword != user.ConfirmedNewPassword)
             {
-                return BadRequest();
+                return BadRequest("New password values must match");
             }
 
             ApplicationUser appUser = await _userManager.FindByEmailAsync(user.Email);
@@ -176,7 +179,7 @@ namespace WebApi.Controllers
 
             if (!res.Succeeded)
             {
-                return BadRequest(res.Errors);
+                return BadRequest(string.Join(",", res.Errors));
             }
 
             return Ok(new ResponseResultGeneral("Password successfully changed"));
@@ -191,7 +194,7 @@ namespace WebApi.Controllers
 
             if (appUser is null)
             {
-                return BadRequest();
+                return BadRequest("An error has occured while processing your request");
             }
 
             await _userManager.DeleteAsync(appUser);
@@ -221,6 +224,7 @@ namespace WebApi.Controllers
             await _ctx.InvalidTokens.AddAsync(invalidToken);
 
             await _ctx.SaveChangesAsync();
+
             return Ok();
         }
 
@@ -232,7 +236,7 @@ namespace WebApi.Controllers
 
             if (appUser is null)
             {
-                return BadRequest();
+                return BadRequest("Required user doesn't exist");
             }
 
             await _userManager.SetLockoutEndDateAsync(appUser, new DateTimeOffset().AddDays(7));
@@ -248,7 +252,7 @@ namespace WebApi.Controllers
 
             if (appUser is null)
             {
-                return BadRequest();
+                return BadRequest("Required user doesn't exist");
             }
 
             await _userManager.SetLockoutEndDateAsync(appUser, null);
@@ -275,7 +279,7 @@ namespace WebApi.Controllers
 
             if (!res.Succeeded)
             {
-                return BadRequest();
+                return BadRequest("Email confirmation unsuccessful");
             }
 
             return Redirect($"{_frontendOptions.AppUrl}/login");
