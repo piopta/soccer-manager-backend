@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using OneOf.Types;
-using WebApi.Services;
 
 namespace WebApi.Filters
 {

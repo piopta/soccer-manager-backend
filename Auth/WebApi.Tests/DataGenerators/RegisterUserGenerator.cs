@@ -2,7 +2,7 @@
 
 namespace WebApi.Tests.DataGenerators;
 
-public class RegisterUserGenerator : IEnumerable<object[]>
+internal class RegisterUserGenerator : IEnumerable<object[]>
 {
     Faker<RegisterUser> validUsers = new Faker<RegisterUser>()
                                             .RuleFor(u => u.Email, g => g.Internet.Email(provider: "ethereal.email"))

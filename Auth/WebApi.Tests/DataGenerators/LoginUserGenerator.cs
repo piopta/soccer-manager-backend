@@ -1,15 +1,18 @@
 ﻿namespace WebApi.Tests.DataGenerators;
 
-public class LoginUserGenerator : IEnumerable<object[]>
+internal class LoginUserGenerator : IEnumerable<object[]>
 {
     public IEnumerator<object[]> GetEnumerator()
     {
+        //valid user (confirmed email)
         yield return new object[] { new LoginUser() {
-            Email = "tess.stokes12@ethereal.email",
-            Password = "myPassword123!"}, HttpStatusCode.OK };
+            Email = TestConstants.validUser2.Email,
+            Password = TestConstants.validUser2.Password}, HttpStatusCode.OK };
+        //not confirmed user
         yield return new object[] {new LoginUser() {
-            Email = "tess.stokes13@ethereal.email",
-            Password = "myPassword123!"}, HttpStatusCode.BadRequest };
+            Email = TestConstants.invalidUser.Email,
+            Password = TestConstants.invalidUser.Password}, HttpStatusCode.BadRequest };
+        //not-existing user
         yield return new object[] { new LoginUser() {
             Email = "tess.stokes99@ethereal.email",
             Password = "myPassword123!"}, HttpStatusCode.BadRequest };
