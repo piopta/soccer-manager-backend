@@ -1,6 +1,4 @@
-﻿using FluentValidation;
-
-namespace GraphQLApi.Validation
+﻿namespace GraphQLApi.Validation
 {
     public class AddUserPreferencesInputValidator : AbstractValidator<AddUserPreferencesInput>
     {
@@ -8,7 +6,7 @@ namespace GraphQLApi.Validation
         {
             RuleFor(r => r.Mode).Must(BeValidMode).NotNull();
             RuleFor(r => r.BottomMenu).NotNull();
-            RuleFor(r => r.NavbarColor).Matches("#([1-9]|[A-F]|[a-f]){6}").NotNull();
+            RuleFor(r => r.NavbarColor).Matches("#([0-9]|[A-F]|[a-f]){6}").NotNull();
         }
         private static bool BeValidMode(string mode)
         {

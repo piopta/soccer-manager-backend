@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Storage;
 
 namespace GraphQLApi.GraphQL.Mutations
 {
-    public class Mutation
+    public partial class Mutation
     {
         [UseDbContext(typeof(AppDbContext))]
         public async Task<AddTeamPayload> AddTeam(AddTeamInput input, [Service(ServiceKind.Resolver)] AppDbContext ctx,
@@ -47,20 +47,6 @@ namespace GraphQLApi.GraphQL.Mutations
             }
 
             return new(team.Id);
-        }
-
-        [UseDbContext(typeof(AppDbContext))]
-        public async Task<UserPreferencesPayload> AddUserPreferences(AddUserPreferencesInput input,
-            [Service(ServiceKind.Resolver)] AppDbContext ctx, [Service] IMapper mapper,
-            [Service] IValidator<AddUserPreferencesInput> validator)
-        {
-            ValidationResult validationRes = await validator.ValidateAsync(input);
-            if (validationRes.IsValid)
-            {
-                UserPreferencesModel userPreferences = mapper.Map<UserPreferencesModel>(input);
-            }
-
-            return new UserPreferencesPayload(Guid.Empty);
         }
     }
 }

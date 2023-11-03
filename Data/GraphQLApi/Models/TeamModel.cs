@@ -16,5 +16,7 @@ namespace GraphQLApi.Models
 
         public IList<ScoresModel> Scores { get; set; } = new List<ScoresModel>();
         public IList<ShirtModel> Shirts { get; set; } = new List<ShirtModel>();
+        public IList<ProfitModel> Profits { get; set; } = new List<ProfitModel>();
+        public IList<SpendingModel> Spendings { get; set; } = new List<SpendingModel>();
     }
 }

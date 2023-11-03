@@ -3,6 +3,7 @@ using System;
 using GraphQLApi.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace GraphQLApi.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20231103172310_MoneyRelatedModelsAdded")]
+    partial class MoneyRelatedModelsAdded
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -40,49 +42,6 @@ namespace GraphQLApi.Migrations
                     b.HasKey("AcademyId");
 
                     b.ToTable("AcademyFacilities");
-                });
-
-            modelBuilder.Entity("GraphQLApi.Models.CalendarEventModel", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<int>("Day")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<int>("EventType")
-                        .HasColumnType("integer");
-
-                    b.Property<Guid?>("MatchId")
-                        .HasColumnType("uuid");
-
-                    b.Property<int>("Month")
-                        .HasColumnType("integer");
-
-                    b.Property<bool>("NotEditable")
-                        .HasColumnType("boolean");
-
-                    b.Property<Guid>("TeamId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid?>("TrainingId")
-                        .HasColumnType("uuid");
-
-                    b.Property<int>("Year")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("MatchId");
-
-                    b.HasIndex("TrainingId");
-
-                    b.ToTable("Calendars");
                 });
 
             modelBuilder.Entity("GraphQLApi.Models.LeagueModel", b =>
@@ -132,32 +91,6 @@ namespace GraphQLApi.Migrations
                     b.HasIndex("TeamId");
 
                     b.ToTable("Logos");
-                });
-
-            modelBuilder.Entity("GraphQLApi.Models.MatchModel", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<int?>("AwayScore")
-                        .HasColumnType("integer");
-
-                    b.Property<Guid>("AwayTeamId")
-                        .HasColumnType("uuid");
-
-                    b.Property<int?>("Ground")
-                        .HasColumnType("integer");
-
-                    b.Property<int?>("HomeScore")
-                        .HasColumnType("integer");
-
-                    b.Property<Guid>("HomeTeamId")
-                        .HasColumnType("uuid");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Matches");
                 });
 
             modelBuilder.Entity("GraphQLApi.Models.ProfitModel", b =>
@@ -336,20 +269,6 @@ namespace GraphQLApi.Migrations
                     b.ToTable("Teams");
                 });
 
-            modelBuilder.Entity("GraphQLApi.Models.TrainingModel", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<int?>("TrainingType")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Trainings");
-                });
-
             modelBuilder.Entity("GraphQLApi.Models.UserPreferencesModel", b =>
                 {
                     b.Property<Guid>("UserId")
@@ -369,21 +288,6 @@ namespace GraphQLApi.Migrations
                     b.HasKey("UserId");
 
                     b.ToTable("UserPreferences");
-                });
-
-            modelBuilder.Entity("GraphQLApi.Models.CalendarEventModel", b =>
-                {
-                    b.HasOne("GraphQLApi.Models.MatchModel", "Match")
-                        .WithMany()
-                        .HasForeignKey("MatchId");
-
-                    b.HasOne("GraphQLApi.Models.TrainingModel", "Training")
-                        .WithMany()
-                        .HasForeignKey("TrainingId");
-
-                    b.Navigation("Match");
-
-                    b.Navigation("Training");
                 });
 
             modelBuilder.Entity("GraphQLApi.Models.LogoModel", b =>

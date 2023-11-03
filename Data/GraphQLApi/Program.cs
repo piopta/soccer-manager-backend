@@ -3,6 +3,7 @@ using GraphQLApi;
 using GraphQLApi.GraphQL.Mutations;
 using GraphQLApi.GraphQL.Queries;
 using GraphQLApi.GraphQL.Types;
+using GraphQLApi.Services;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -20,6 +21,8 @@ builder.Services.AddGraphQLServer()
     .AddSorting();
 
 builder.Services.AddAutoMapper(typeof(ApiMarker).Assembly);
+builder.Services.AddScoped<IFacilityService, FacilityService>();
+builder.Services.AddScoped<ICalendarService, CalendarService>();
 
 builder.Services.AddFluentValidation(opts =>
 {

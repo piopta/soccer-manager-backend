@@ -1,4 +1,4 @@
 ﻿namespace GraphQLApi.Models.Payloads
 {
-    public record UserPreferencesPayload(Guid UserId);
+    public record UserPreferencesPayload(Guid UserId, string ErrorMessage = "");
 }
