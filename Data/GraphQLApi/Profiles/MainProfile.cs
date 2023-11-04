@@ -51,6 +51,9 @@ namespace GraphQLApi.Profiles
                 .ForMember(dest => dest.AwayTeamId, src => src.MapFrom((input, original, _) => input.RivalTeamId is not null ? input.RivalTeamId : original.AwayTeamId))
                 .ForMember(dest => dest.Ground, src => src.MapFrom((input, original, _) => input.Ground is not null ? input.Ground : original.Ground));
             CreateMap<EditCalendarEventInput, TrainingModel>();
+
+            CreateMap<ManagePlayerTransferInput, PlayerModel>();
+            CreateMap<ManageAcademyInput, PlayerModel>();
         }
     }
 }

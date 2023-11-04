@@ -7,7 +7,7 @@ namespace GraphQLApi.Data.ValueComparers
         public GameResultTypeListComparer()
             : base((c1, c2) => c1.SequenceEqual(c2),
               c => c.Aggregate(0, (a, v) => HashCode.Combine(a, v.GetHashCode())),
-              c => (IList<GameResultType>)c.ToHashSet())
+              c => (IList<GameResultType>)c.ToList())
         {
         }
     }

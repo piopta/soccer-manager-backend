@@ -3,6 +3,7 @@ using System;
 using GraphQLApi.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace GraphQLApi.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20231104171651_SchemaUpdate")]
+    partial class SchemaUpdate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -195,14 +197,8 @@ namespace GraphQLApi.Migrations
                     b.Property<bool>("IsBenched")
                         .HasColumnType("boolean");
 
-                    b.Property<bool>("IsInAcademy")
-                        .HasColumnType("boolean");
-
                     b.Property<bool>("IsOnSale")
                         .HasColumnType("boolean");
-
-                    b.Property<double>("MarketValue")
-                        .HasColumnType("double precision");
 
                     b.Property<string>("PlayerName")
                         .IsRequired()
@@ -403,7 +399,7 @@ namespace GraphQLApi.Migrations
                     b.Property<DateTime>("From")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<Guid>("PlayerId")
+                    b.Property<Guid?>("PlayerModelId")
                         .HasColumnType("uuid");
 
                     b.Property<Guid>("TeamId")
@@ -414,7 +410,7 @@ namespace GraphQLApi.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("PlayerId");
+                    b.HasIndex("PlayerModelId");
 
                     b.HasIndex("TeamId");
 
@@ -426,9 +422,6 @@ namespace GraphQLApi.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
-
-                    b.Property<double>("Budget")
-                        .HasColumnType("double precision");
 
                     b.Property<int>("DayOfCreation")
                         .HasColumnType("integer");
@@ -553,19 +546,15 @@ namespace GraphQLApi.Migrations
 
             modelBuilder.Entity("GraphQLApi.Models.TeamHistoryInfoModel", b =>
                 {
-                    b.HasOne("GraphQLApi.Models.PlayerModel", "Player")
+                    b.HasOne("GraphQLApi.Models.PlayerModel", null)
                         .WithMany("TeamHistory")
-                        .HasForeignKey("PlayerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("PlayerModelId");
 
                     b.HasOne("GraphQLApi.Models.TeamModel", "Team")
                         .WithMany()
                         .HasForeignKey("TeamId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Player");
 
                     b.Navigation("Team");
                 });

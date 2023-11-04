@@ -1,6 +1,4 @@
-﻿using FluentValidation;
-
-namespace GraphQLApi.Validation
+﻿namespace GraphQLApi.Validation
 {
     public class AddTeamInputValidator : AbstractValidator<AddTeamInput>
     {

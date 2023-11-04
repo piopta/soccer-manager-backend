@@ -3,6 +3,7 @@ using System;
 using GraphQLApi.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace GraphQLApi.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20231104200936_UpdatePlayerRelationships")]
+    partial class UpdatePlayerRelationships
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -193,9 +195,6 @@ namespace GraphQLApi.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<bool>("IsBenched")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("IsInAcademy")
                         .HasColumnType("boolean");
 
                     b.Property<bool>("IsOnSale")

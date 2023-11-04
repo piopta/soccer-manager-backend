@@ -18,11 +18,19 @@ builder.Services.AddGraphQLServer()
     .AddMutationType<Mutation>()
     .AddType<TeamType>()
     .AddFiltering()
+    .AddProjections()
     .AddSorting();
 
 builder.Services.AddAutoMapper(typeof(ApiMarker).Assembly);
 builder.Services.AddScoped<IFacilityService, FacilityService>();
 builder.Services.AddScoped<ICalendarService, CalendarService>();
+builder.Services.AddScoped<IScoresService, ScoresService>();
+builder.Services.AddScoped<IProfitsService, ProfitsService>();
+builder.Services.AddScoped<ISpendingsService, SpendingsService>();
+builder.Services.AddScoped<IPlayerService, PlayerService>();
+builder.Services.AddScoped<ITeamService, TeamService>();
+builder.Services.AddScoped<ITransfersService, TransfersService>();
+builder.Services.AddScoped<IAcademyService, AcademyService>();
 
 builder.Services.AddFluentValidation(opts =>
 {

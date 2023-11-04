@@ -11,6 +11,5 @@ namespace GraphQLApi.Models
         public string IconId { get; set; } = default!;
         public SoccerShirtType Type { get; set; }
         public Guid TeamId { get; set; }
-        public TeamModel Team { get; set; } = default!;
     }
 }

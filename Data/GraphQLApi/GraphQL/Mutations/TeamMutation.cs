@@ -1,6 +1,7 @@
 ﻿
 
 using AutoMapper;
+using GraphQLApi.Services;
 using Microsoft.EntityFrameworkCore.Storage;
 
 namespace GraphQLApi.GraphQL.Mutations
@@ -9,7 +10,7 @@ namespace GraphQLApi.GraphQL.Mutations
     {
         [UseDbContext(typeof(AppDbContext))]
         public async Task<AddTeamPayload> AddTeam(AddTeamInput input, [Service(ServiceKind.Resolver)] AppDbContext ctx,
-            [Service] IMapper mapper, CancellationToken token)
+            [Service] IMapper mapper, [Service(ServiceKind.Resolver)] ITeamService teamService, CancellationToken token)
         {
             TeamModel team = mapper.Map<TeamModel>(input);
             LogoModel logo = mapper.Map<LogoModel>(input);
@@ -36,8 +37,10 @@ namespace GraphQLApi.GraphQL.Mutations
                     await ctx.Shirts.AddAsync(secondShirt, token);
 
                     team.LogoId = logo.Id;
+                    team.Budget = 5_000_000;
 
                     await ctx.SaveChangesAsync(token);
+
                     await transaction.CommitAsync(token);
                 }
                 catch (Exception ex)
@@ -45,7 +48,7 @@ namespace GraphQLApi.GraphQL.Mutations
                     await transaction.RollbackAsync(token);
                 }
             }
-
+            await teamService.CreateMyTeam(team);
             return new(team.Id);
         }
     }

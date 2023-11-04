@@ -3,6 +3,7 @@ using System;
 using GraphQLApi.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace GraphQLApi.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20231103194636_UpdatePlayerSchema")]
+    partial class UpdatePlayerSchema
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -93,6 +95,7 @@ namespace GraphQLApi.Migrations
             modelBuilder.Entity("GraphQLApi.Models.LeagueModel", b =>
                 {
                     b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<string>("Name")
@@ -132,6 +135,8 @@ namespace GraphQLApi.Migrations
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("TeamId");
 
                     b.ToTable("Logos");
                 });
@@ -174,9 +179,6 @@ namespace GraphQLApi.Migrations
                     b.Property<int>("Condition")
                         .HasColumnType("integer");
 
-                    b.Property<DateTime>("ContractTo")
-                        .HasColumnType("timestamp with time zone");
-
                     b.Property<string>("CountryCode")
                         .IsRequired()
                         .HasColumnType("text");
@@ -194,15 +196,6 @@ namespace GraphQLApi.Migrations
 
                     b.Property<bool>("IsBenched")
                         .HasColumnType("boolean");
-
-                    b.Property<bool>("IsInAcademy")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("IsOnSale")
-                        .HasColumnType("boolean");
-
-                    b.Property<double>("MarketValue")
-                        .HasColumnType("double precision");
 
                     b.Property<string>("PlayerName")
                         .IsRequired()
@@ -225,9 +218,6 @@ namespace GraphQLApi.Migrations
 
                     b.Property<Guid>("TeamId")
                         .HasColumnType("uuid");
-
-                    b.Property<double>("Wage")
-                        .HasColumnType("double precision");
 
                     b.Property<bool>("YellowCard")
                         .HasColumnType("boolean");
@@ -280,9 +270,6 @@ namespace GraphQLApi.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<Guid>("LeagueId")
-                        .HasColumnType("uuid");
-
                     b.Property<Guid?>("LeagueModelId")
                         .HasColumnType("uuid");
 
@@ -298,6 +285,9 @@ namespace GraphQLApi.Migrations
                     b.Property<Guid>("TeamId")
                         .HasColumnType("uuid");
 
+                    b.Property<Guid?>("TeamModelId")
+                        .HasColumnType("uuid");
+
                     b.Property<int>("Wins")
                         .HasColumnType("integer");
 
@@ -305,7 +295,7 @@ namespace GraphQLApi.Migrations
 
                     b.HasIndex("LeagueModelId");
 
-                    b.HasIndex("TeamId");
+                    b.HasIndex("TeamModelId");
 
                     b.ToTable("Scores");
                 });
@@ -403,7 +393,7 @@ namespace GraphQLApi.Migrations
                     b.Property<DateTime>("From")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<Guid>("PlayerId")
+                    b.Property<Guid?>("PlayerModelId")
                         .HasColumnType("uuid");
 
                     b.Property<Guid>("TeamId")
@@ -414,7 +404,7 @@ namespace GraphQLApi.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("PlayerId");
+                    b.HasIndex("PlayerModelId");
 
                     b.HasIndex("TeamId");
 
@@ -427,12 +417,6 @@ namespace GraphQLApi.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<double>("Budget")
-                        .HasColumnType("double precision");
-
-                    b.Property<int>("DayOfCreation")
-                        .HasColumnType("integer");
-
                     b.Property<Guid>("LogoId")
                         .HasColumnType("uuid");
 
@@ -444,8 +428,6 @@ namespace GraphQLApi.Migrations
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("LogoId");
 
                     b.ToTable("Teams");
                 });
@@ -504,6 +486,17 @@ namespace GraphQLApi.Migrations
                     b.Navigation("Training");
                 });
 
+            modelBuilder.Entity("GraphQLApi.Models.LogoModel", b =>
+                {
+                    b.HasOne("GraphQLApi.Models.TeamModel", "Team")
+                        .WithMany()
+                        .HasForeignKey("TeamId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Team");
+                });
+
             modelBuilder.Entity("GraphQLApi.Models.PlayerModel", b =>
                 {
                     b.HasOne("GraphQLApi.Models.TeamModel", "Team")
@@ -528,13 +521,9 @@ namespace GraphQLApi.Migrations
                         .WithMany("Scores")
                         .HasForeignKey("LeagueModelId");
 
-                    b.HasOne("GraphQLApi.Models.TeamModel", "Team")
+                    b.HasOne("GraphQLApi.Models.TeamModel", null)
                         .WithMany("Scores")
-                        .HasForeignKey("TeamId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Team");
+                        .HasForeignKey("TeamModelId");
                 });
 
             modelBuilder.Entity("GraphQLApi.Models.ShirtModel", b =>
@@ -553,11 +542,9 @@ namespace GraphQLApi.Migrations
 
             modelBuilder.Entity("GraphQLApi.Models.TeamHistoryInfoModel", b =>
                 {
-                    b.HasOne("GraphQLApi.Models.PlayerModel", "Player")
+                    b.HasOne("GraphQLApi.Models.PlayerModel", null)
                         .WithMany("TeamHistory")
-                        .HasForeignKey("PlayerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("PlayerModelId");
 
                     b.HasOne("GraphQLApi.Models.TeamModel", "Team")
                         .WithMany()
@@ -565,20 +552,7 @@ namespace GraphQLApi.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Player");
-
                     b.Navigation("Team");
-                });
-
-            modelBuilder.Entity("GraphQLApi.Models.TeamModel", b =>
-                {
-                    b.HasOne("GraphQLApi.Models.LogoModel", "Logo")
-                        .WithMany()
-                        .HasForeignKey("LogoId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Logo");
                 });
 
             modelBuilder.Entity("GraphQLApi.Models.LeagueModel", b =>

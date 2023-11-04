@@ -22,6 +22,8 @@ namespace GraphQLApi.Data
         public DbSet<MatchModel> Matches => Set<MatchModel>();
         public DbSet<TrainingModel> Trainings => Set<TrainingModel>();
         public DbSet<CalendarEventModel> Calendars => Set<CalendarEventModel>();
+        public DbSet<PlayerModel> Players => Set<PlayerModel>();
+        public DbSet<TeamHistoryInfoModel> TeamHistories => Set<TeamHistoryInfoModel>();
 
         //https://stackoverflow.com/questions/65328620/ef-core-list-of-enums
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -34,6 +36,10 @@ namespace GraphQLApi.Data
                     v => string.Join(',', v),
                     v => v.Split(',', StringSplitOptions.RemoveEmptyEntries).ToList().Select(v => Enum.Parse<GameResultType>(v)).ToList())
                 .Metadata.SetValueComparer(new GameResultTypeListComparer());
+
+            modelBuilder.Entity<TeamModel>()
+                .HasMany(t => t.Players).WithOne(s => s.Team)
+                .HasForeignKey(s => s.TeamId);
 
         }
     }

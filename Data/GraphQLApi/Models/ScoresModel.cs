@@ -13,5 +13,7 @@ namespace GraphQLApi.Models
         public int Lost { get; set; }
         public IList<GameResultType> Form { get; set; } = new List<GameResultType>();
         public Guid TeamId { get; set; }
+        public TeamModel Team { get; set; } = default!;
+        public Guid LeagueId { get; set; }
     }
 }
