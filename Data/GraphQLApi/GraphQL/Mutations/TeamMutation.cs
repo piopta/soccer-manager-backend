@@ -8,6 +8,11 @@ namespace GraphQLApi.GraphQL.Mutations
 {
     public partial class Mutation
     {
+        public async Task<TeamTacticsPayload> ModifyTeamTactics(TeamTacticsInput input, [Service(ServiceKind.Resolver)] ITeamService teamService)
+        {
+            return await teamService.ModifyTeamTactics(input);
+        }
+
         [UseDbContext(typeof(AppDbContext))]
         public async Task<AddTeamPayload> AddTeam(AddTeamInput input, [Service(ServiceKind.Resolver)] AppDbContext ctx,
             [Service] IMapper mapper, [Service(ServiceKind.Resolver)] ITeamService teamService, CancellationToken token)

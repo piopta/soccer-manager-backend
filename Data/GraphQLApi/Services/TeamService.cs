@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Bogus;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace GraphQLApi.Services
 {
@@ -38,6 +39,46 @@ namespace GraphQLApi.Services
             _spendingsService = spendingsService;
             _playerService = playerService;
             _mapper = mapper;
+        }
+
+        public async Task<TeamTacticsPayload> ModifyTeamTactics(TeamTacticsInput input)
+        {
+            List<PlayerModel> teamPlayers = _ctx.Players.Where(p => p.TeamId == input.TeamId).ToList();
+
+            if (teamPlayers.Any())
+            {
+                using (IDbContextTransaction transaction = await _ctx.Database.BeginTransactionAsync())
+                {
+                    try
+                    {
+                        foreach (var squadPlayer in input.SquadPlayers)
+                        {
+                            var player = teamPlayers.First(p => p.Id == squadPlayer.Id);
+                            player.IsBenched = false;
+                            player.SquadPosition = squadPlayer.SquadPosition;
+                        }
+
+                        foreach (var benchedId in input.BenchPlayers)
+                        {
+                            var player = teamPlayers.First(p => p.Id == benchedId);
+                            player.IsBenched = true;
+                            player.SquadPosition = 0;
+                        }
+
+                        await _ctx.SaveChangesAsync();
+                        await transaction.CommitAsync();
+
+                        return new(input.TeamId);
+                    }
+                    catch (Exception ex)
+                    {
+                        await transaction.RollbackAsync();
+                    }
+                }
+
+            }
+
+            return new(Guid.Empty, "An error has occured while updating teams' tactics");
         }
 
         public async Task CreateMyTeam(TeamModel team)
