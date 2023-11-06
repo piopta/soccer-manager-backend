@@ -28,11 +28,16 @@ namespace GraphQLApi.Services
         {
             List<PlayerModel> players = _playerGenerator.GenerateBetween(20, 22);
 
-            players.ForEach(p =>
+            for (int i = 0; i < players.Count(); i++)
             {
-                p.TeamId = teamId;
-                p.MarketValue = p.Wage * 5 + p.PlayerRating * 100_000 - (p.Age * 1_000);
-            });
+                players[i].TeamId = teamId;
+                players[i].MarketValue = players[i].Wage * 5 + players[i].PlayerRating * 100_000 - (players[i].Age * 1_000);
+
+                if (i < 11)
+                {
+                    players[i].SquadPosition = i + 1;
+                }
+            }
 
             List<PlayerModel> academyPlayers = _playerGenerator.GenerateBetween(2, 4);
 
@@ -41,6 +46,7 @@ namespace GraphQLApi.Services
                 p.TeamId = teamId;
                 p.MarketValue = p.Wage * 5 + p.PlayerRating * 100_000 - (p.Age * 1_000);
                 p.IsInAcademy = true;
+                p.IsBenched = true;
                 p.PlayerRating = 1;
             });
 
