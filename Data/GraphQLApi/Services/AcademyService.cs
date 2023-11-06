@@ -1,32 +1,33 @@
-﻿using AutoMapper;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 
 namespace GraphQLApi.Services
 {
     public class AcademyService : IAcademyService
     {
-        private readonly IMapper _mapper;
         private AppDbContext _ctx;
 
-        public AcademyService(IDbContextFactory<AppDbContext> ctx, IMapper mapper)
+        public AcademyService(IDbContextFactory<AppDbContext> ctx)
         {
             _ctx = ctx.CreateDbContext();
-            _mapper = mapper;
         }
 
         public async Task<AcademyPayload> ManagePlayerAcademy(ManageAcademyInput input)
         {
-            PlayerModel? player = await _ctx.Players.FirstOrDefaultAsync(p => p.Id == input.Id);
+            IEnumerable<PlayerModel> players = _ctx.Players.Where(p => input.Ids.Contains(p.Id)).ToList();
 
-            if (player is not null)
+            if (players is not null && players.Any())
             {
-                _mapper.Map(input, player);
+                foreach (PlayerModel player in players)
+                {
+                    player.IsInAcademy = input.IsInAcademy;
+                }
+
                 await _ctx.SaveChangesAsync();
 
-                return new(input.Id, "Academy player status updated");
+                return new(input.Ids, "Academy player status updated");
             }
 
-            return new(Guid.Empty, "Player with the given Id doesn't exist");
+            return new(Array.Empty<Guid>(), "Player with the given Id doesn't exist");
         }
     }
 }

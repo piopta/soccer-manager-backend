@@ -53,7 +53,6 @@ namespace GraphQLApi.Profiles
             CreateMap<EditCalendarEventInput, TrainingModel>();
 
             CreateMap<ManagePlayerTransferInput, PlayerModel>();
-            CreateMap<ManageAcademyInput, PlayerModel>();
         }
     }
 }

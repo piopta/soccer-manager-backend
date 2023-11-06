@@ -8,5 +8,15 @@ namespace GraphQLApi.GraphQL.Mutations
         {
             return await academyService.ManagePlayerAcademy(input);
         }
+
+        public async Task<AcademyFacilityPayload> AddAcademyFacility(AddAcademyFacilityInput input, [Service(ServiceKind.Resolver)] IFacilityService facilityService)
+        {
+            return await facilityService.AddAcademyFacility(input);
+        }
+
+        public async Task<StadiumPayload> EditAcademyFacility(Guid academyId, EditAcademyFacilityInput input, [Service(ServiceKind.Resolver)] IFacilityService facilityService)
+        {
+            return await facilityService.EditAcademyFacility(academyId, input);
+        }
     }
 }

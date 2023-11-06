@@ -2,7 +2,7 @@
 {
     public class ManageAcademyInput
     {
-        public Guid Id { get; set; }
+        public IList<Guid> Ids { get; set; } = new List<Guid>();
         public bool IsInAcademy { get; set; }
     }
 }

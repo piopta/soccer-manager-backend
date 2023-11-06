@@ -12,7 +12,7 @@ namespace GraphQLApi.Services
             .RuleFor(p => p.PotentialRating, g => g.Random.Number(1, 6))
             .RuleFor(p => p.PositionType, g => g.Random.Enum<PositionType>())
             .RuleFor(p => p.PlayerNumber, g => g.Random.Number(1, 100))
-            .RuleFor(p => p.Image, g => g.Image.People())
+            .RuleFor(p => p.Image, g => $"https://robohash.org/{Guid.NewGuid()}")
             .RuleFor(p => p.CountryCode, g => g.Address.CountryCode())
             .RuleFor(p => p.Foot, g => g.Random.ArrayElement(new string[] { "L", "R" }))
             .RuleFor(p => p.Age, g => g.Random.Number(16, 35))

@@ -37,8 +37,18 @@ builder.Services.AddFluentValidation(opts =>
     opts.RegisterValidatorsFromAssembly(typeof(ApiMarker).Assembly);
 });
 
+builder.Services.AddCors((opts) =>
+{
+    opts.AddPolicy("AllowFrontendPolicy", pb =>
+    {
+        pb.WithOrigins("http://localhost:3000").AllowAnyMethod().AllowCredentials()
+            .AllowAnyHeader();
+    });
+});
 
 var app = builder.Build();
+
+app.UseCors("AllowFrontendPolicy");
 
 app.MapGet("/", () => Results.Redirect("/graphql"));
 

@@ -3,12 +3,23 @@
     public class Query
     {
         [UseDbContext(typeof(AppDbContext))]
+        [UsePaging]
         [UseProjection]
         [UseFiltering]
         [UseSorting]
         public IQueryable<TeamModel> GetTeams([Service(ServiceKind.Resolver)] AppDbContext ctx)
         {
             return ctx.Teams;
+        }
+
+        [UseDbContext(typeof(AppDbContext))]
+        [UsePaging]
+        [UseProjection]
+        [UseFiltering]
+        [UseSorting]
+        public IQueryable<PlayerModel> GetPlayers([Service(ServiceKind.Resolver)] AppDbContext ctx)
+        {
+            return ctx.Players;
         }
 
         [UseDbContext(typeof(AppDbContext))]
@@ -44,6 +55,7 @@
         }
 
         [UseDbContext(typeof(AppDbContext))]
+        [UseProjection]
         [UseFiltering]
         [UseSorting]
         public LeagueModel? GetLeague(Guid leagueId, [Service(ServiceKind.Resolver)] AppDbContext ctx)
@@ -74,6 +86,23 @@
         {
             IQueryable<PlayerModel> res = ctx.Players.Where(p => p.TeamId != teamId && p.IsOnSale);
             return res;
+        }
+
+        [UseDbContext(typeof(AppDbContext))]
+        [UseProjection]
+        [UseFiltering]
+        [UseSorting]
+        public UserPreferencesModel? GetUserPreferences(Guid userId, [Service(ServiceKind.Resolver)] AppDbContext ctx)
+        {
+            IQueryable<UserPreferencesModel> res = ctx.UserPreferences.Where(p => p.UserId == userId);
+            return res.FirstOrDefault();
+        }
+
+        [UseDbContext(typeof(AppDbContext))]
+        [UseFiltering]
+        public Guid? GetTeamLeagueId(Guid teamId, [Service(ServiceKind.Resolver)] AppDbContext ctx)
+        {
+            return ctx.Scores.FirstOrDefault(s => s.TeamId == teamId)?.LeagueId;
         }
     }
 }

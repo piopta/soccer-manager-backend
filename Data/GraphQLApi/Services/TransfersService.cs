@@ -56,7 +56,7 @@ namespace GraphQLApi.Services
 
                         player.TeamId = buyingTeam.Id;
                         player.Team = buyingTeam;
-
+                        player.IsOnSale = false;
                         TeamHistoryInfoModel historyInfoModel = new()
                         {
                             TeamId = playerTeam.Id,

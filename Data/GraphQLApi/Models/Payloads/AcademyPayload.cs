@@ -1,4 +1,4 @@
 ﻿namespace GraphQLApi.Models.Payloads
 {
-    public record AcademyPayload(Guid PlayerId, string ErrorMessage = "");
+    public record AcademyPayload(IList<Guid> PlayerIds, string ErrorMessage = "");
 }
