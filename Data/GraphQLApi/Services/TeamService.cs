@@ -44,6 +44,7 @@ namespace GraphQLApi.Services
         public async Task<TeamTacticsPayload> ModifyTeamTactics(TeamTacticsInput input)
         {
             List<PlayerModel> teamPlayers = _ctx.Players.Where(p => p.TeamId == input.TeamId).ToList();
+            TeamModel? team = await _ctx.Teams.FirstOrDefaultAsync(t => t.Id == input.TeamId);
 
             if (teamPlayers.Any())
             {
@@ -63,6 +64,11 @@ namespace GraphQLApi.Services
                             var player = teamPlayers.First(p => p.Id == benchedId);
                             player.IsBenched = true;
                             player.SquadPosition = 0;
+                        }
+
+                        if (team is not null)
+                        {
+                            team.Formation = input.Formation;
                         }
 
                         await _ctx.SaveChangesAsync();

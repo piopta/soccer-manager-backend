@@ -104,5 +104,19 @@
         {
             return ctx.Scores.FirstOrDefault(s => s.TeamId == teamId)?.LeagueId;
         }
+
+        [UseDbContext(typeof(AppDbContext))]
+        [UseFiltering]
+        public IQueryable<ShirtModel> GetShirts(Guid teamId, [Service(ServiceKind.Resolver)] AppDbContext ctx)
+        {
+            return ctx.Shirts.Where(t => t.TeamId == teamId);
+        }
+
+        [UseDbContext(typeof(AppDbContext))]
+        [UseFiltering]
+        public IQueryable<MatchModel> GetMatches(Guid id, [Service(ServiceKind.Resolver)] AppDbContext ctx)
+        {
+            return ctx.Matches.Where(t => t.Id == id);
+        }
     }
 }

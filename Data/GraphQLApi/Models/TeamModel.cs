@@ -7,6 +7,7 @@ namespace GraphQLApi.Models
         [Key]
         public Guid Id { get; set; }
         public string Name { get; set; } = default!;
+        public string Formation { get; set; } = default!;
         public Guid UserId { get; set; }
         public int DayOfCreation { get; set; }
         public double Budget { get; set; }

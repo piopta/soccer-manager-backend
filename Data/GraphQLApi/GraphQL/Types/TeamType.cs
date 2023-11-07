@@ -6,9 +6,6 @@
         {
             descriptor.Field(f => f.Logo)
                 .ResolveWith<TeamResolvers>(r => r.GetLogo(default!, default!)).UseDbContext<AppDbContext>();
-
-            descriptor.Field(f => f.Shirts)
-                .ResolveWith<TeamResolvers>(r => r.GetShirts(default!, default!)).UseDbContext<AppDbContext>();
         }
     }
 }

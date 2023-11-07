@@ -5,5 +5,6 @@
         public Guid TeamId { get; set; }
         public IList<PlayerTacticsPositionModel> SquadPlayers { get; set; } = new List<PlayerTacticsPositionModel>();
         public IList<Guid> BenchPlayers { get; set; } = new List<Guid>();
+        public string Formation { get; set; } = default!;
     }
 }

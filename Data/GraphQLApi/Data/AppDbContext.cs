@@ -24,6 +24,7 @@ namespace GraphQLApi.Data
         public DbSet<CalendarEventModel> Calendars => Set<CalendarEventModel>();
         public DbSet<PlayerModel> Players => Set<PlayerModel>();
         public DbSet<TeamHistoryInfoModel> TeamHistories => Set<TeamHistoryInfoModel>();
+        public DbSet<OpinionModel> Opinions => Set<OpinionModel>();
 
         //https://stackoverflow.com/questions/65328620/ef-core-list-of-enums
         protected override void OnModelCreating(ModelBuilder modelBuilder)
