@@ -114,10 +114,19 @@
         }
 
         [UseDbContext(typeof(AppDbContext))]
+        [UseProjection]
         [UseFiltering]
         public IQueryable<MatchModel> GetMatches(Guid id, [Service(ServiceKind.Resolver)] AppDbContext ctx)
         {
             return ctx.Matches.Where(t => t.Id == id);
+        }
+
+        [UseDbContext(typeof(AppDbContext))]
+        [UseFiltering]
+        public CalendarEventModel? GetLatestMatch(Guid teamId, [Service(ServiceKind.Resolver)] AppDbContext ctx)
+        {
+            return ctx.Calendars.OrderBy(c => new DateTime(c.Year, c.Month, c.Day)).ToList().Where(c => new DateTime(c.Year, c.Month, c.Day) >= DateTime.UtcNow)
+                .FirstOrDefault(s => s.TeamId == teamId);
         }
     }
 }

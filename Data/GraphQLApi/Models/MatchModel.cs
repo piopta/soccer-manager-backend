@@ -13,5 +13,7 @@ namespace GraphQLApi.Models
         public GroundType? Ground { get; set; }
         public int? HomeScore { get; set; }
         public int? AwayScore { get; set; }
+        public TeamModel HomeTeam { get; set; } = default!;
+        public TeamModel AwayTeam { get; set; } = default!;
     }
 }

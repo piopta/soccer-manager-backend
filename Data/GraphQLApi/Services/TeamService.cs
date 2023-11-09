@@ -9,7 +9,6 @@ namespace GraphQLApi.Services
     {
         private readonly AppDbContext _ctx;
         private readonly ICalendarService _calendarService;
-        private readonly IFacilityService _facilityService;
         private readonly IScoresService _scoresService;
         private readonly IProfitsService _profitsService;
         private readonly ISpendingsService _spendingsService;
@@ -21,20 +20,19 @@ namespace GraphQLApi.Services
             .RuleFor(t => t.Formation, "4-3-3")
             .RuleFor(t => t.Logo, g => new LogoModel()
             {
-                IconId = g.Random.Number(1, 6).ToString(),
-                MainColor = g.PickRandom(new[] { "red", "green", "blue", "black", "white" }),
-                SecondaryColor = g.PickRandom(new[] { "red", "green", "blue", "black", "white" }),
+                IconId = g.PickRandom(AppConstants.Logos),
+                MainColor = g.PickRandom(AppConstants.Colors),
+                SecondaryColor = g.PickRandom(AppConstants.Colors),
                 Type = g.Random.Enum<SoccerShirtType>()
             });
 
         public TeamService(IDbContextFactory<AppDbContext> ctx, ICalendarService calendarService,
-            IFacilityService facilityService, IScoresService scoresService, IProfitsService profitsService,
+            IScoresService scoresService, IProfitsService profitsService,
             ISpendingsService spendingsService, IPlayerService playerService,
             IMapper mapper)
         {
             _ctx = ctx.CreateDbContext();
             _calendarService = calendarService;
-            _facilityService = facilityService;
             _scoresService = scoresService;
             _profitsService = profitsService;
             _spendingsService = spendingsService;
@@ -108,7 +106,7 @@ namespace GraphQLApi.Services
             await _playerService.GenerateTeamPlayers(team.Id);
 
             await CreateLeagueTeams(leagueId);
-            await GenerateTeamSchedule(leagueId);
+            await GenerateTeamSchedule(leagueId, team.Id);
         }
 
         public async Task CreateLeagueTeams(Guid leagueId)
@@ -117,7 +115,8 @@ namespace GraphQLApi.Services
             {
                 TeamModel tm = _teamsGenerator.Generate();
 
-                tm.UserId = Guid.Empty;
+                tm.UserId = Guid.NewGuid();
+                tm.Id = tm.UserId;
                 tm.DayOfCreation = DateTime.UtcNow.Day;
 
                 await _ctx.Teams.AddAsync(tm);
@@ -135,7 +134,7 @@ namespace GraphQLApi.Services
         }
 
         //inspired here: https://stackoverflow.com/questions/1037057/how-to-automatically-generate-a-sports-league-schedule
-        private async Task GenerateTeamSchedule(Guid leagueId)
+        private async Task GenerateTeamSchedule(Guid leagueId, Guid dbTeamId)
         {
             List<MatchModel> matches = new();
             List<ScoresModel> teamScores = _ctx.Scores.Where(s => s.LeagueId == leagueId).ToList();
@@ -199,7 +198,8 @@ namespace GraphQLApi.Services
                     MatchId = match.Id,
                     Month = dateNow.Month,
                     NotEditable = false,
-                    Year = dateNow.Year
+                    Year = dateNow.Year,
+                    TeamId = dbTeamId
                 };
 
                 matches.Add(match);

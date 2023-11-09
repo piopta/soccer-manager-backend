@@ -119,6 +119,7 @@ namespace WebApi.Controllers
 
             return Ok(new LoginUserResult()
             {
+                UserId = appUser.Id,
                 Token = token
             });
         }

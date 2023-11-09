@@ -2,7 +2,6 @@ using FluentValidation.AspNetCore;
 using GraphQLApi;
 using GraphQLApi.GraphQL.Mutations;
 using GraphQLApi.GraphQL.Queries;
-using GraphQLApi.GraphQL.Types;
 using GraphQLApi.Services;
 using Microsoft.EntityFrameworkCore;
 
@@ -16,7 +15,6 @@ builder.Services.AddDbContextFactory<AppDbContext>(opts =>
 builder.Services.AddGraphQLServer()
     .AddQueryType<Query>()
     .AddMutationType<Mutation>()
-    .AddType<TeamType>()
     .AddFiltering()
     .AddProjections()
     .AddSorting();
