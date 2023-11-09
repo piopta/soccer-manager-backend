@@ -15,5 +15,6 @@ namespace GraphQLApi.Models
         public Guid TeamId { get; set; }
         public TeamModel Team { get; set; } = default!;
         public Guid LeagueId { get; set; }
+        public LeagueModel League { get; set; } = default!;
     }
 }

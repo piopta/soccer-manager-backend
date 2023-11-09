@@ -18,6 +18,7 @@ namespace GraphQLApi.Services
 
         private readonly Faker<TeamModel> _teamsGenerator = new Faker<TeamModel>()
             .RuleFor(t => t.Name, g => $"{g.Company.CompanyName()} {g.Address.City()}")
+            .RuleFor(t => t.Formation, "4-3-3")
             .RuleFor(t => t.Logo, g => new LogoModel()
             {
                 IconId = g.Random.Number(1, 6).ToString(),
@@ -133,26 +134,30 @@ namespace GraphQLApi.Services
             }
         }
 
+        //inspired here: https://stackoverflow.com/questions/1037057/how-to-automatically-generate-a-sports-league-schedule
         private async Task GenerateTeamSchedule(Guid leagueId)
         {
             List<MatchModel> matches = new();
             List<ScoresModel> teamScores = _ctx.Scores.Where(s => s.LeagueId == leagueId).ToList();
-
-            DateTime dateNow = DateTime.UtcNow;
+            List<CalendarEventModel> calendarEvents = new();
 
             List<ScoresModel> teamsToGenerateSchedule = teamScores.Skip(1).ToList();
             int teamsListSize = teamsToGenerateSchedule.Count();
             int halfTeams = teamScores.Count() / 2;
 
+            DateTime dateNow = DateTime.UtcNow;
             for (int i = 0; i < teamScores.Count() - 1; i++)
             {
+                dateNow = DateTime.UtcNow;
+
                 int teamId = i % teamsListSize;
 
                 MatchModel match = new()
                 {
+                    Id = Guid.NewGuid(),
                     HomeTeamId = teamScores[0].TeamId,
                     AwayTeamId = teamsToGenerateSchedule[teamId].TeamId,
-                    Ground = Random.Shared.Next(1, 2) % 2 == 0 ? GroundType.HOME : GroundType.AWAY
+                    Ground = Random.Shared.Next(1, 3) % 2 == 0 ? GroundType.HOME : GroundType.AWAY
                 };
 
                 for (int j = 0; j < halfTeams - 1; j++)
@@ -162,17 +167,47 @@ namespace GraphQLApi.Services
 
                     MatchModel matchInner = new()
                     {
+                        Id = Guid.NewGuid(),
                         HomeTeamId = teamsToGenerateSchedule[firstTeam].TeamId,
                         AwayTeamId = teamsToGenerateSchedule[secondTeam].TeamId,
-                        Ground = Random.Shared.Next(1, 2) % 2 == 0 ? GroundType.HOME : GroundType.AWAY
+                        Ground = Random.Shared.Next(1, 3) % 2 == 0 ? GroundType.HOME : GroundType.AWAY
                     };
+
+                    CalendarEventModel calendarEventInner = new()
+                    {
+                        Day = dateNow.Day,
+                        Description = string.Empty,
+                        EventType = EventType.MATCH,
+                        Match = matchInner,
+                        MatchId = matchInner.Id,
+                        Month = dateNow.Month,
+                        NotEditable = false,
+                        Year = dateNow.Year
+                    };
+
+                    dateNow = dateNow.AddDays(1);
                     matches.Add(matchInner);
+                    calendarEvents.Add(calendarEventInner);
                 }
 
+                CalendarEventModel calendarEvent = new()
+                {
+                    Day = dateNow.Day,
+                    Description = string.Empty,
+                    EventType = EventType.MATCH,
+                    Match = match,
+                    MatchId = match.Id,
+                    Month = dateNow.Month,
+                    NotEditable = false,
+                    Year = dateNow.Year
+                };
+
                 matches.Add(match);
+                calendarEvents.Add(calendarEvent);
             }
 
             await _ctx.Matches.AddRangeAsync(matches);
+            await _ctx.Calendars.AddRangeAsync(calendarEvents);
             await _ctx.SaveChangesAsync();
         }
     }

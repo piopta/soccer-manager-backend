@@ -24,7 +24,7 @@ namespace GraphQLApi.Services
 
                 await _ctx.SaveChangesAsync();
 
-                return new(input.Ids, "Academy player status updated");
+                return new(input.Ids);
             }
 
             return new(Array.Empty<Guid>(), "Player with the given Id doesn't exist");

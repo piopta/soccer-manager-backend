@@ -58,12 +58,13 @@
         [UseProjection]
         [UseFiltering]
         [UseSorting]
-        public LeagueModel? GetLeague(Guid leagueId, [Service(ServiceKind.Resolver)] AppDbContext ctx)
+        public IQueryable<ScoresModel> GetLeague(Guid leagueId, [Service(ServiceKind.Resolver)] AppDbContext ctx)
         {
-            return ctx.Leagues.FirstOrDefault(s => s.Id == leagueId);
+            return ctx.Scores.Where(s => s.LeagueId == leagueId);
         }
 
         [UseDbContext(typeof(AppDbContext))]
+        [UseProjection]
         [UseFiltering]
         [UseSorting]
         public IQueryable<CalendarEventModel> GetCalendar(Guid teamId, int year, int month, [Service(ServiceKind.Resolver)] AppDbContext ctx)

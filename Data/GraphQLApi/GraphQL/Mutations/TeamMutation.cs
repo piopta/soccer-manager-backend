@@ -32,6 +32,7 @@ namespace GraphQLApi.GraphQL.Mutations
             {
                 try
                 {
+                    team.Formation = "4-3-3";
                     await ctx.Teams.AddAsync(team, token);
                     logo.TeamId = team.Id;
                     firstShirt.TeamId = team.Id;
