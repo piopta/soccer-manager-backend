@@ -61,7 +61,7 @@ namespace GraphQLApi.Services
                         {
                             TeamId = playerTeam.Id,
                             PlayerId = player.Id,
-                            From = DateTime.UtcNow
+                            To = DateTime.UtcNow
                         };
 
                         SpendingModel spending = await _ctx.Spendings.OrderBy(s => s.Id).LastAsync(s => s.TeamId == buyingTeam.Id);

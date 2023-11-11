@@ -4,6 +4,20 @@ namespace GraphQLApi.Models
 {
     public class CalendarEventModel
     {
+        public CalendarEventModel()
+        {
+
+        }
+
+        internal CalendarEventModel(DateTime date, Guid dbTeamId)
+        {
+            Day = date.Day;
+            Month = date.Month;
+            Year = date.Year;
+            TeamId = dbTeamId;
+            Description = string.Empty;
+        }
+
         [Key]
         public Guid Id { get; set; }
         public Guid TeamId { get; set; }

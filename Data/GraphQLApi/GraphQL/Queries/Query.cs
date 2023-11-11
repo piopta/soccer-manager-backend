@@ -1,4 +1,6 @@
-﻿namespace GraphQLApi.GraphQL.Queries
+﻿using Microsoft.EntityFrameworkCore;
+
+namespace GraphQLApi.GraphQL.Queries
 {
     public class Query
     {
@@ -66,16 +68,10 @@
         [UseDbContext(typeof(AppDbContext))]
         [UseProjection]
         [UseFiltering]
-        [UseSorting]
         public IQueryable<CalendarEventModel> GetCalendar(Guid teamId, int year, int month, [Service(ServiceKind.Resolver)] AppDbContext ctx)
         {
-            IQueryable<CalendarEventModel> data = ctx.Calendars.Where(c => c.TeamId == teamId && c.Year == year && c.Month == month);
-
-            foreach (CalendarEventModel? d in data)
-            {
-                d.NotEditable = d.NotEditable ? d.NotEditable : new DateOnly(d.Year, d.Month, d.Day) < DateOnly.FromDateTime(DateTime.UtcNow);
-            }
-
+            IQueryable<CalendarEventModel> data = ctx.Calendars
+                .Where(c => c.TeamId == teamId && c.Year == year && c.Month == month);
             return data;
         }
 
@@ -127,6 +123,13 @@
         {
             return ctx.Calendars.OrderBy(c => new DateTime(c.Year, c.Month, c.Day)).ToList().Where(c => new DateTime(c.Year, c.Month, c.Day) >= DateTime.UtcNow)
                 .FirstOrDefault(s => s.TeamId == teamId);
+        }
+
+        [UseDbContext(typeof(AppDbContext))]
+        public IQueryable<TeamModel> GetAvailableTeams(AvailableTeamsInput input, [Service(ServiceKind.Resolver)] AppDbContext ctx)
+        {
+            return ctx.Teams
+                .FromSqlRaw(AppConstants.SqlQueries.AvailableTeams, $"{input.Year}-{input.Month}-{input.Day}", input.TeamId);
         }
     }
 }

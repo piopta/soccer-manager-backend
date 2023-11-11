@@ -10,6 +10,7 @@ namespace GraphQLApi.Models
         public string PlayerName { get; set; } = default!;
         public int PlayerRating { get; set; } = default!;
         public int PotentialRating { get; set; } = default!;
+        public int? SquadRating { get; set; }
         public PositionType PositionType { get; set; }
         public int SquadPosition { get; set; }
         public int PlayerNumber { get; set; }

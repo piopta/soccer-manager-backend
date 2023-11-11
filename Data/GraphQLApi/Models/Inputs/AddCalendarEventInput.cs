@@ -11,8 +11,6 @@
 
         public Guid? RivalTeamId { get; set; }
         public GroundType? Ground { get; set; }
-        public int? HomeScore { get; set; }
-        public int? AwayScore { get; set; }
         public TrainingType? TrainingType { get; set; }
     }
 }

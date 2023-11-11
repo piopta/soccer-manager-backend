@@ -15,5 +15,6 @@ namespace GraphQLApi.Models
         public int? AwayScore { get; set; }
         public TeamModel HomeTeam { get; set; } = default!;
         public TeamModel AwayTeam { get; set; } = default!;
+        public MatchType Type { get; set; }
     }
 }

@@ -27,7 +27,23 @@ namespace GraphQLApi.Services
 
             if (validationRes.IsValid)
             {
-                CalendarEventModel calendar = _mapper.Map<CalendarEventModel>(input);
+                CalendarEventModel? existingEvent = await _ctx.Calendars
+                    .FirstOrDefaultAsync(c => c.TeamId == input.TeamId
+                        && c.Day == input.Day && c.Month == input.Month && c.Year == input.Year && c.EventType != EventType.NONE);
+
+                CalendarEventModel? eventToFill = await _ctx.Calendars
+                    .FirstOrDefaultAsync(c => c.TeamId == input.TeamId
+                        && c.Day == input.Day && c.Month == input.Month && c.Year == input.Year && c.EventType == EventType.NONE);
+
+                if (existingEvent is not null)
+                {
+                    return new(Guid.Empty, "An event with the chosen day exists");
+                }
+
+                if (eventToFill is null)
+                {
+                    return new(Guid.Empty, "Invalid date - tried to add event outside the season");
+                }
 
                 if (input.EventType == EventType.MATCH)
                 {
@@ -39,10 +55,10 @@ namespace GraphQLApi.Services
                         {
                             await _ctx.Matches.AddAsync(match);
 
-                            calendar.MatchId = match.Id;
-                            calendar.Match = match;
+                            eventToFill.MatchId = match.Id;
+                            eventToFill.Match = match;
+                            eventToFill.EventType = EventType.MATCH;
 
-                            await _ctx.Calendars.AddAsync(calendar);
                             await _ctx.SaveChangesAsync();
 
                             await transaction.CommitAsync();
@@ -58,7 +74,10 @@ namespace GraphQLApi.Services
                 }
                 else if (input.EventType == EventType.TRAINING)
                 {
-                    TrainingModel training = _mapper.Map<TrainingModel>(input);
+                    TrainingModel training = new()
+                    {
+                        TrainingType = input.TrainingType
+                    };
 
                     using (IDbContextTransaction transaction = await _ctx.Database.BeginTransactionAsync())
                     {
@@ -66,10 +85,10 @@ namespace GraphQLApi.Services
                         {
                             await _ctx.Trainings.AddAsync(training);
 
-                            calendar.TrainingId = training.Id;
-                            calendar.Training = training;
+                            eventToFill.TrainingId = training.Id;
+                            eventToFill.Training = training;
+                            eventToFill.EventType = EventType.TRAINING;
 
-                            await _ctx.Calendars.AddAsync(calendar);
                             await _ctx.SaveChangesAsync();
 
                             await transaction.CommitAsync();

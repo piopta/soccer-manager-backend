@@ -3,6 +3,7 @@ using System;
 using GraphQLApi.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace GraphQLApi.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20231110194032_MakeSquadRatingOptional")]
+    partial class MakeSquadRatingOptional
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -156,9 +158,6 @@ namespace GraphQLApi.Migrations
                     b.Property<Guid>("HomeTeamId")
                         .HasColumnType("uuid");
 
-                    b.Property<int>("Type")
-                        .HasColumnType("integer");
-
                     b.HasKey("Id");
 
                     b.HasIndex("AwayTeamId");
@@ -248,9 +247,6 @@ namespace GraphQLApi.Migrations
                         .HasColumnType("integer");
 
                     b.Property<int>("SquadPosition")
-                        .HasColumnType("integer");
-
-                    b.Property<int?>("SquadRating")
                         .HasColumnType("integer");
 
                     b.Property<bool>("Suspended")
@@ -472,6 +468,9 @@ namespace GraphQLApi.Migrations
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<int?>("SquadRating")
+                        .HasColumnType("integer");
 
                     b.Property<Guid>("UserId")
                         .HasColumnType("uuid");

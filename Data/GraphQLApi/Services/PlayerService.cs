@@ -36,6 +36,15 @@ namespace GraphQLApi.Services
                 if (i < 11)
                 {
                     players[i].SquadPosition = i + 1;
+
+                    players[i].SquadRating = players[i].PositionType switch
+                    {
+                        PositionType.GOALKEEPER => (i + 1 == 1) ? players[i].PlayerRating : 1,
+                        PositionType.DEFENDER => (i + 1 >= 2 && i + 1 <= 5) ? players[i].PlayerRating : 1,
+                        PositionType.MIDFIELDER => (i + 1 >= 6 && i + 1 <= 8) ? players[i].PlayerRating : 1,
+                        PositionType.STRIKER => (i + 1 >= 9 && i + 1 <= 11) ? players[i].PlayerRating : 1,
+                        _ => 0
+                    };
                 }
             }
 

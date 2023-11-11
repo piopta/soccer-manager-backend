@@ -26,6 +26,11 @@ namespace GraphQLApi.Services
                 Type = g.Random.Enum<SoccerShirtType>()
             });
 
+        private readonly Faker<ShirtModel> _shirtsGenerator = new Faker<ShirtModel>()
+            .RuleFor(t => t.MainColor, g => g.PickRandom(AppConstants.Colors))
+            .RuleFor(t => t.SecondaryColor, g => g.PickRandom(AppConstants.Colors))
+            .RuleFor(t => t.Type, g => g.Random.Enum<SoccerShirtType>());
+
         public TeamService(IDbContextFactory<AppDbContext> ctx, ICalendarService calendarService,
             IScoresService scoresService, IProfitsService profitsService,
             ISpendingsService spendingsService, IPlayerService playerService,
@@ -124,6 +129,16 @@ namespace GraphQLApi.Services
 
                 await _ctx.Logos.AddAsync(tm.Logo);
                 tm.LogoId = tm.Logo.Id;
+
+                ShirtModel firstShirt = _shirtsGenerator.Generate();
+                ShirtModel secondShirt = _shirtsGenerator.Generate();
+
+                firstShirt.TeamId = tm.Id;
+                secondShirt.TeamId = tm.Id;
+                secondShirt.IsSecond = true;
+
+                await _ctx.Shirts.AddRangeAsync(firstShirt, secondShirt);
+
                 await _ctx.SaveChangesAsync();
 
                 await _scoresService.CreateScores(tm.Id, leagueId);
@@ -144,66 +159,83 @@ namespace GraphQLApi.Services
             int teamsListSize = teamsToGenerateSchedule.Count();
             int halfTeams = teamScores.Count() / 2;
 
-            DateTime dateNow = DateTime.UtcNow;
-            for (int i = 0; i < teamScores.Count() - 1; i++)
+            DateTime dateNow = DateTime.UtcNow.AddDays(1);
+
+            for (int k = 0; k < 2; k++)
             {
-                dateNow = DateTime.UtcNow;
-
-                int teamId = i % teamsListSize;
-
-                MatchModel match = new()
+                for (int i = 0; i < teamScores.Count() - 1; i++)
                 {
-                    Id = Guid.NewGuid(),
-                    HomeTeamId = teamScores[0].TeamId,
-                    AwayTeamId = teamsToGenerateSchedule[teamId].TeamId,
-                    Ground = Random.Shared.Next(1, 3) % 2 == 0 ? GroundType.HOME : GroundType.AWAY
-                };
+                    int teamId = i % teamsListSize;
 
-                for (int j = 0; j < halfTeams - 1; j++)
-                {
-                    int firstTeam = (i + j) % teamsListSize;
-                    int secondTeam = (teamsListSize - 1 - j + i) % teamsListSize;
-
-                    MatchModel matchInner = new()
+                    MatchModel match = new()
                     {
                         Id = Guid.NewGuid(),
-                        HomeTeamId = teamsToGenerateSchedule[firstTeam].TeamId,
-                        AwayTeamId = teamsToGenerateSchedule[secondTeam].TeamId,
+                        HomeTeamId = teamScores[0].TeamId,
+                        AwayTeamId = teamsToGenerateSchedule[teamId].TeamId,
                         Ground = Random.Shared.Next(1, 3) % 2 == 0 ? GroundType.HOME : GroundType.AWAY
                     };
 
-                    CalendarEventModel calendarEventInner = new()
+                    CalendarEventModel calendarEvent = new()
                     {
                         Day = dateNow.Day,
                         Description = string.Empty,
                         EventType = EventType.MATCH,
-                        Match = matchInner,
-                        MatchId = matchInner.Id,
+                        Match = match,
+                        MatchId = match.Id,
                         Month = dateNow.Month,
-                        NotEditable = false,
-                        Year = dateNow.Year
+                        NotEditable = true,
+                        Year = dateNow.Year,
+                        TeamId = dbTeamId
                     };
 
+                    for (int j = 0; j < halfTeams - 1; j++)
+                    {
+                        int firstTeam = (i + j) % teamsListSize;
+                        int secondTeam = (teamsListSize - 1 - j + i) % teamsListSize;
+
+                        MatchModel matchInner = new()
+                        {
+                            Id = Guid.NewGuid(),
+                            HomeTeamId = teamsToGenerateSchedule[firstTeam].TeamId,
+                            AwayTeamId = teamsToGenerateSchedule[secondTeam].TeamId,
+                            Ground = Random.Shared.Next(1, 3) % 2 == 0 ? GroundType.HOME : GroundType.AWAY
+                        };
+
+                        CalendarEventModel calendarEventInner = new()
+                        {
+                            Day = dateNow.Day,
+                            Description = string.Empty,
+                            EventType = EventType.MATCH,
+                            Match = matchInner,
+                            MatchId = matchInner.Id,
+                            Month = dateNow.Month,
+                            NotEditable = true,
+                            Year = dateNow.Year
+                        };
+
+                        matches.Add(matchInner);
+                        calendarEvents.Add(calendarEventInner);
+                    }
+
+                    matches.Add(match);
+                    calendarEvents.Add(calendarEvent);
                     dateNow = dateNow.AddDays(1);
-                    matches.Add(matchInner);
-                    calendarEvents.Add(calendarEventInner);
                 }
 
-                CalendarEventModel calendarEvent = new()
+                if (k == 0)
                 {
-                    Day = dateNow.Day,
-                    Description = string.Empty,
-                    EventType = EventType.MATCH,
-                    Match = match,
-                    MatchId = match.Id,
-                    Month = dateNow.Month,
-                    NotEditable = false,
-                    Year = dateNow.Year,
-                    TeamId = dbTeamId
-                };
+                    List<CalendarEventModel> freeEvents = new();
 
-                matches.Add(match);
-                calendarEvents.Add(calendarEvent);
+                    for (int i = 0; i < 3; i++)
+                    {
+                        var ce = new CalendarEventModel(dateNow.AddDays(i), dbTeamId);
+                        freeEvents.Add(ce);
+                    }
+
+                    calendarEvents.AddRange(freeEvents);
+                }
+
+                dateNow = dateNow.AddDays(3);
             }
 
             await _ctx.Matches.AddRangeAsync(matches);
