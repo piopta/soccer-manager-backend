@@ -121,8 +121,10 @@ namespace GraphQLApi.GraphQL.Queries
         [UseFiltering]
         public CalendarEventModel? GetLatestMatch(Guid teamId, [Service(ServiceKind.Resolver)] AppDbContext ctx)
         {
-            return ctx.Calendars.OrderBy(c => new DateTime(c.Year, c.Month, c.Day)).ToList().Where(c => new DateTime(c.Year, c.Month, c.Day) >= DateTime.UtcNow)
-                .FirstOrDefault(s => s.TeamId == teamId);
+            return ctx.Calendars
+                .Include(m => m.Match)
+                .OrderBy(c => new DateTime(c.Year, c.Month, c.Day)).ToList().Where(c => new DateTime(c.Year, c.Month, c.Day) >= DateTime.UtcNow)
+                .FirstOrDefault(s => s.Match?.HomeTeamId == teamId || s.Match?.AwayTeamId == teamId);
         }
 
         [UseDbContext(typeof(AppDbContext))]

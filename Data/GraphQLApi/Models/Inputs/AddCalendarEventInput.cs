@@ -11,6 +11,6 @@
 
         public Guid? RivalTeamId { get; set; }
         public GroundType? Ground { get; set; }
-        public TrainingType? TrainingType { get; set; }
+        public int? TrainingType { get; set; }
     }
 }

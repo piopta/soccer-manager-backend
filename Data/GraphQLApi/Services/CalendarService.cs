@@ -48,6 +48,8 @@ namespace GraphQLApi.Services
                 if (input.EventType == EventType.MATCH)
                 {
                     MatchModel match = _mapper.Map<MatchModel>(input);
+                    match.HomeTeamId = input.TeamId;
+                    match.Type = Models.MatchType.FRIENDLY;
 
                     using (IDbContextTransaction transaction = await _ctx.Database.BeginTransactionAsync())
                     {
@@ -76,7 +78,7 @@ namespace GraphQLApi.Services
                 {
                     TrainingModel training = new()
                     {
-                        TrainingType = input.TrainingType
+                        TrainingType = (TrainingType)(input.TrainingType ?? 0)
                     };
 
                     using (IDbContextTransaction transaction = await _ctx.Database.BeginTransactionAsync())

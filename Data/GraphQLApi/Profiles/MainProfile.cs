@@ -46,11 +46,13 @@ namespace GraphQLApi.Profiles
 
             CreateMap<AddCalendarEventInput, MatchModel>()
                 .ForMember(dest => dest.AwayTeamId, src => src.MapFrom(opt => opt.RivalTeamId));
-            CreateMap<AddCalendarEventInput, TrainingModel>();
+            CreateMap<AddCalendarEventInput, TrainingModel>()
+                .ForMember(dest => dest.TrainingType, src => src.MapFrom((input, original, _) => (TrainingType)(input.TrainingType ?? 0)));
             CreateMap<EditCalendarEventInput, MatchModel>()
                 .ForMember(dest => dest.AwayTeamId, src => src.MapFrom((input, original, _) => input.RivalTeamId is not null ? input.RivalTeamId : original.AwayTeamId))
                 .ForMember(dest => dest.Ground, src => src.MapFrom((input, original, _) => input.Ground is not null ? input.Ground : original.Ground));
-            CreateMap<EditCalendarEventInput, TrainingModel>();
+            CreateMap<EditCalendarEventInput, TrainingModel>()
+                .ForMember(dest => dest.TrainingType, src => src.MapFrom((input, original, _) => (TrainingType)(input.TrainingType ?? 0)));
 
             CreateMap<ManagePlayerTransferInput, PlayerModel>();
             CreateMap<OpinionInput, OpinionModel>();

@@ -65,7 +65,7 @@ namespace GraphQLApi.Services
 
                         foreach (var benchedId in input.BenchPlayers)
                         {
-                            var player = teamPlayers.First(p => p.Id == benchedId);
+                            var player = teamPlayers.First(p => p.Id == Guid.Parse(benchedId));
                             player.IsBenched = true;
                             player.SquadPosition = 0;
                         }

@@ -8,8 +8,20 @@ namespace GraphQLApi.GraphQL.Mutations
 {
     public partial class Mutation
     {
-        public async Task<TeamTacticsPayload> ModifyTeamTactics(TeamTacticsInput input, [Service(ServiceKind.Resolver)] ITeamService teamService)
+        [UseDbContext(typeof(AppDbContext))]
+        public async Task<TeamTacticsPayload> ModifyTeamTactics(TeamTacticsInput input,
+            [Service(ServiceKind.Resolver)] ITeamService teamService, [Service(ServiceKind.Resolver)] AppDbContext ctx)
         {
+            var squadPlayersIds = input.SquadPlayers.Select(s => s.Id).ToList();
+            var anyInvalidPlayers = ctx.Players
+                .Where(p => squadPlayersIds.Contains(p.Id) && (p.InjuredTill != null || p.Suspended) && p.IsBenched && p.SquadPosition > 0)
+                .Any();
+
+            if (anyInvalidPlayers)
+            {
+                return new(Guid.Empty, "");
+            }
+
             return await teamService.ModifyTeamTactics(input);
         }
 
