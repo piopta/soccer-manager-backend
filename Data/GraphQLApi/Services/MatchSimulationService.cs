@@ -13,7 +13,7 @@ namespace GraphQLApi.Services
 
         public async Task SimulateMatches()
         {
-            DateTime date = DateTime.UtcNow.AddDays(2);
+            DateTime date = DateTime.UtcNow.AddDays(1);
 
             IEnumerable<CalendarEventModel> calendarEvents = _ctx.Calendars
                 .ToList()

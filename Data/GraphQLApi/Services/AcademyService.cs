@@ -19,7 +19,7 @@ namespace GraphQLApi.Services
             {
                 foreach (PlayerModel player in players)
                 {
-                    player.IsInAcademy = input.IsInAcademy;
+                    player.IsInAcademy = !input.IsInAcademy;
                 }
 
                 await _ctx.SaveChangesAsync();
