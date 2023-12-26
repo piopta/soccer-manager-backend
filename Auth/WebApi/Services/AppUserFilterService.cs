@@ -21,7 +21,6 @@ public class AppUserFilterService : IAppUserFilterService
             return new BadRequestObjectResult("User account is locked or doesn't exist.");
         }
 
-        //temporary commented
         if (!appUser.EmailConfirmed)
         {
             return new BadRequestObjectResult("User account is locked or doesn't exist.");

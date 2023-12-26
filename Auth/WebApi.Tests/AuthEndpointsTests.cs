@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using System.Text.Json;
 using WebApi.Data;
+using WebApi.Models.Results;
 using WebApi.Tests.DataGenerators;
 
 namespace WebApi.Tests;
@@ -78,9 +80,16 @@ public class AuthEndpointsTests : IClassFixture<CustomApiFactory>, IAsyncLifetim
     public async Task DeleteUser_ShouldReturnStatusCode(LoginUser user, string email, HttpStatusCode code)
     {
         var loginRes = await _client.PostAsJsonAsync("/api/auth/login", user);
+        LoginUserResult? loginResContent = default;
 
-        string token = await loginRes.Content.ReadAsStringAsync();
-        _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+        if (loginRes.IsSuccessStatusCode)
+        {
+            string loginResContentSerialized = await loginRes.Content.ReadAsStringAsync();
+            loginResContent = JsonSerializer.Deserialize<LoginUserResult>(loginResContentSerialized,
+                new JsonSerializerOptions() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
+
+            _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", loginResContent?.Token);
+        }
 
         var res = await _client.DeleteAsync($"/api/auth?userEmail={email}");
         _client.DefaultRequestHeaders.Clear();
@@ -93,11 +102,18 @@ public class AuthEndpointsTests : IClassFixture<CustomApiFactory>, IAsyncLifetim
     public async Task Logout_ShouldReturnStatusCode(LoginUser user, string token, HttpStatusCode code)
     {
         var loginRes = await _client.PostAsJsonAsync("/api/auth/login", user);
+        LoginUserResult? loginResContent = default;
 
-        string loginToken = await loginRes.Content.ReadAsStringAsync();
-        _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", loginToken);
+        if (loginRes.IsSuccessStatusCode)
+        {
+            string loginResContentSerialized = await loginRes.Content.ReadAsStringAsync();
+            loginResContent = JsonSerializer.Deserialize<LoginUserResult>(loginResContentSerialized,
+                new JsonSerializerOptions() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
 
-        var res = await _client.GetAsync($"/api/auth/logout?token={(!string.IsNullOrEmpty(token) ? token : loginToken)}");
+            _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", loginResContent?.Token);
+        }
+
+        var res = await _client.GetAsync($"/api/auth/logout?token={(!string.IsNullOrEmpty(token) ? token : loginResContent?.Token)}");
         _client.DefaultRequestHeaders.Clear();
 
         Assert.Equal(code, res.StatusCode);
@@ -109,8 +125,11 @@ public class AuthEndpointsTests : IClassFixture<CustomApiFactory>, IAsyncLifetim
     {
         var loginRes = await _client.PostAsJsonAsync("/api/auth/login", user);
 
-        string loginToken = await loginRes.Content.ReadAsStringAsync();
-        _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", loginToken);
+        string loginResContentSerialized = await loginRes.Content.ReadAsStringAsync();
+        LoginUserResult? loginResContent = JsonSerializer.Deserialize<LoginUserResult>(loginResContentSerialized,
+            new JsonSerializerOptions() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
+
+        _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", loginResContent?.Token);
 
         var lockUserRes = await _client.GetAsync($"/api/auth/lockUser?userEmail={userEmail}");
         var unlockUserRes = await _client.GetAsync($"/api/auth/unlockUser?userEmail={userEmail}");
@@ -128,12 +147,15 @@ public class AuthEndpointsTests : IClassFixture<CustomApiFactory>, IAsyncLifetim
     {
         var loginRes = await _client.PostAsJsonAsync("/api/auth/login", user);
 
-        string loginToken = await loginRes.Content.ReadAsStringAsync();
-        _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", loginToken);
+        string loginResContentSerialized = await loginRes.Content.ReadAsStringAsync();
+        LoginUserResult? loginResContent = JsonSerializer.Deserialize<LoginUserResult>(loginResContentSerialized,
+            new JsonSerializerOptions() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
+
+        _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", loginResContent?.Token);
 
         if (string.IsNullOrEmpty(token))
         {
-            token = loginToken;
+            token = loginResContent?.Token ?? "";
         }
 
         var getInfoRes = await _client.PostAsJsonAsync<dynamic>($"/api/auth/validateToken", new { Token = token });
