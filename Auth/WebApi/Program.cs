@@ -17,7 +17,10 @@ builder.Services.Configure<MailOptions>(builder.Configuration.GetSection(Applica
 builder.Services.AddValidatorsFromAssemblyContaining<AssemblyMarker>();
 builder.Services.AddDbContext<ApplicationDbContext>(opts =>
 {
-    opts.UseNpgsql(builder.Configuration.GetConnectionString(ApplicationConstants.DbConnectionStringName));
+    opts.UseNpgsql(builder.Configuration.GetConnectionString(ApplicationConstants.DbConnectionStringName), (opts) =>
+    {
+        opts.SetPostgresVersion(9, 6);
+    });
 });
 
 builder.Services.AddAuthServices();
