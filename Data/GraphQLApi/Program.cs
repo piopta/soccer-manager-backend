@@ -11,7 +11,10 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddDbContextFactory<AppDbContext>(opts =>
 {
-    opts.UseNpgsql(builder.Configuration.GetConnectionString("MainConn"));
+    opts.UseNpgsql(builder.Configuration.GetConnectionString("MainConn"), (opts) =>
+    {
+        opts.SetPostgresVersion(9, 6);
+    });
 });
 
 builder.Services.AddGraphQLServer()
