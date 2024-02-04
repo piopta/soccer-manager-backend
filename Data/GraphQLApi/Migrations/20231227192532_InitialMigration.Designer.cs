@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace GraphQLApi.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20231110192902_SquadRatingForTeamAdded")]
-    partial class SquadRatingForTeamAdded
+    [Migration("20231227192532_InitialMigration")]
+    partial class InitialMigration
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -22,7 +22,7 @@ namespace GraphQLApi.Migrations
                 .HasAnnotation("ProductVersion", "6.0.24")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
-            NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
+            NpgsqlModelBuilderExtensions.UseSerialColumns(modelBuilder);
 
             modelBuilder.Entity("GraphQLApi.Models.AcademyFacilityModel", b =>
                 {
@@ -158,6 +158,9 @@ namespace GraphQLApi.Migrations
                     b.Property<Guid>("HomeTeamId")
                         .HasColumnType("uuid");
 
+                    b.Property<int>("Type")
+                        .HasColumnType("integer");
+
                     b.HasKey("Id");
 
                     b.HasIndex("AwayTeamId");
@@ -247,6 +250,9 @@ namespace GraphQLApi.Migrations
                         .HasColumnType("integer");
 
                     b.Property<int>("SquadPosition")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("SquadRating")
                         .HasColumnType("integer");
 
                     b.Property<bool>("Suspended")
@@ -468,9 +474,6 @@ namespace GraphQLApi.Migrations
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text");
-
-                    b.Property<int>("SquadRating")
-                        .HasColumnType("integer");
 
                     b.Property<Guid>("UserId")
                         .HasColumnType("uuid");
